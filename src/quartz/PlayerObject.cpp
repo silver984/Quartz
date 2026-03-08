@@ -3,7 +3,7 @@
 #include <quartz/core/LuaManager.hpp>
 #include <sol/sol.hpp>
 
-QUARTZ_DEFINE_RETURNING_HOOK(PlayerObject, bool, false, init, init, (int p0, int p1, GJBaseGameLayer* p2, cocos2d::CCLayer* p3, bool p4), p0, p1, p2, p3, p4)
+QUARTZ_DEFINE_RETURNING_HOOK(PlayerObject, bool, init, init, (int p0, int p1, GJBaseGameLayer* p2, cocos2d::CCLayer* p3, bool p4), p0, p1, p2, p3, p4)
 QUARTZ_DEFINE_VOID_HOOK(PlayerObject, update, update, (float p0), p0)
 
 $on_mod(Loaded)

@@ -42,7 +42,7 @@
     sol::error error = RESULT;\
     geode::log::error("{} callback invalid | what: {}", #LUA_CALL, error.what())\
 
-#define QUARTZ_RUN_RETURNING_HOOK(CLASS, RETURN_TYPE, DEFAULT_RETURN, CALL, LUA_CALL, ...)\
+#define QUARTZ_RUN_RETURNING_HOOK(CLASS, RETURN_TYPE, CALL, LUA_CALL, ...)\
     QUARTZ_CHECK_CALLBACKS(CLASS, CALL, LUA_CALL, ##__VA_ARGS__);\
     for (const auto& callback : callbacks)\
     {\
@@ -50,13 +50,14 @@
         if (!result.valid())\
         {\
             QUARTZ_INVALID_CALLBACK_ERROR(result, LUA_CALL);\
-            return DEFAULT_RETURN;\
+            return CLASS::CALL(__VA_ARGS__);\
         }\
         if (result.return_count() > 0)\
         {\
             return result.get<RETURN_TYPE>(0);\
         }\
-    }
+    }\
+    return CLASS::CALL(__VA_ARGS__);
 
 #define QUARTZ_RUN_VOID_HOOK(CLASS, CALL, LUA_CALL, ...)\
     QUARTZ_CHECK_CALLBACKS(CLASS, CALL, LUA_CALL, ##__VA_ARGS__);\
@@ -79,8 +80,8 @@
 	RETURN_TYPE CALL ARGS;\
 	RETURN_TYPE CALL##__ ARGS;
 
-#define QUARTZ_DEFINE_RETURNING_HOOK(CLASS, RETURN_TYPE, DEFAULT_RETURN, CALL, LUA_CALL, ARGS, ...)\
-    RETURN_TYPE quartz::lua_##CLASS::CALL ARGS { QUARTZ_RUN_RETURNING_HOOK(CLASS, RETURN_TYPE, DEFAULT_RETURN, CALL, LUA_CALL, ##__VA_ARGS__); }\
+#define QUARTZ_DEFINE_RETURNING_HOOK(CLASS, RETURN_TYPE, CALL, LUA_CALL, ARGS, ...)\
+    RETURN_TYPE quartz::lua_##CLASS::CALL ARGS { QUARTZ_RUN_RETURNING_HOOK(CLASS, RETURN_TYPE, CALL, LUA_CALL, ##__VA_ARGS__); }\
     RETURN_TYPE quartz::lua_##CLASS::CALL##__ ARGS { return CLASS::CALL(__VA_ARGS__); }
 
 #define QUARTZ_DEFINE_VOID_HOOK(CLASS, CALL, LUA_CALL, ARGS, ...)\
