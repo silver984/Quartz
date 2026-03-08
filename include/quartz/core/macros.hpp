@@ -14,10 +14,10 @@
     hookIDs_table[#CLASS] = hookID_##CLASS##_table
 
 #define QUARTZ_BIND_RETURNING_METHOD(CLASS, RETURN_TYPE, DEFAULT_RETURN, CALL, LUA_CALL, ARGS, ...)\
-    #LUA_CALL, []ARGS -> RETURN_TYPE { if (auto cast = static_cast<quartz::lua_##CLASS##*>(obj__)) { return cast->CALL##__(##__VA_ARGS__); } return DEFAULT_RETURN; }
+    #LUA_CALL, []ARGS -> RETURN_TYPE { if (auto cast = static_cast<quartz::lua_##CLASS*>(obj__)) { return cast->CALL##__(__VA_ARGS__); } return DEFAULT_RETURN; }
 
 #define QUARTZ_BIND_VOID_METHOD(CLASS, CALL, LUA_CALL, ARGS, ...)\
-    #LUA_CALL, []ARGS { if (auto cast = static_cast<quartz::lua_##CLASS##*>(obj__)) { cast->CALL##__(##__VA_ARGS__); } }
+    #LUA_CALL, []ARGS { if (auto cast = static_cast<quartz::lua_##CLASS*>(obj__)) { cast->CALL##__(__VA_ARGS__); } }
 
 #define QUARTZ_BIND_FIELD(CLASS, LUA_NAME, TYPE, GETTER, SETTER)\
     #LUA_NAME, sol::property([](CLASS* obj__) -> TYPE { return obj__->GETTER; }, [](CLASS* obj__, const TYPE& val) { obj__->SETTER; })
@@ -80,9 +80,9 @@
 	RETURN_TYPE CALL##__ ARGS;
 
 #define QUARTZ_DEFINE_RETURNING_HOOK(CLASS, RETURN_TYPE, DEFAULT_RETURN, CALL, LUA_CALL, ARGS, ...)\
-    RETURN_TYPE quartz::lua_##CLASS##::CALL ARGS { QUARTZ_RUN_RETURNING_HOOK(CLASS, RETURN_TYPE, DEFAULT_RETURN, CALL, LUA_CALL, ##__VA_ARGS__); }\
-    RETURN_TYPE quartz::lua_##CLASS##::CALL##__ ARGS { return CLASS::CALL(__VA_ARGS__); }
+    RETURN_TYPE quartz::lua_##CLASS::CALL ARGS { QUARTZ_RUN_RETURNING_HOOK(CLASS, RETURN_TYPE, DEFAULT_RETURN, CALL, LUA_CALL, ##__VA_ARGS__); }\
+    RETURN_TYPE quartz::lua_##CLASS::CALL##__ ARGS { return CLASS::CALL(__VA_ARGS__); }
 
 #define QUARTZ_DEFINE_VOID_HOOK(CLASS, CALL, LUA_CALL, ARGS, ...)\
-    void quartz::lua_##CLASS##::CALL ARGS{ QUARTZ_RUN_VOID_HOOK(CLASS, CALL, LUA_CALL, ##__VA_ARGS__); }\
-    void quartz::lua_##CLASS##::CALL##__ ARGS{ CLASS::CALL(__VA_ARGS__); }
+    void quartz::lua_##CLASS::CALL ARGS{ QUARTZ_RUN_VOID_HOOK(CLASS, CALL, LUA_CALL, ##__VA_ARGS__); }\
+    void quartz::lua_##CLASS::CALL##__ ARGS{ CLASS::CALL(__VA_ARGS__); }
