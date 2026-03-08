@@ -3,14 +3,13 @@
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
-		"mac": "2.2081",
-		"ios": "2.2081"
+		"mac": "2.2081"
 	},
 	"id": "silverstar.quartz",
 	"name": "Quartz",
 	"version": "v1.0.0",
 	"developer": "SILVERSTAR",
-	"description": "Exposes Geometry Dash’s API to Lua for scripting.",
+	"description": "A Geode mod that exposes Geometry Dash’s API to Lua for scripting",
 	"dependencies": {
 		"geode.node-ids": ">=v1.20.0"
 	},
