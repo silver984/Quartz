@@ -51,6 +51,6 @@ private:
 };
 } // quartz
 
-#ifndef QUARTZ_LUAMANAGER
-#define QUARTZ_LUAMANAGER quartz::LuaManager::get()
+#ifndef $quartz_LuaManager
+#define $quartz_LuaManager quartz::LuaManager::get()
 #endif

@@ -1,20 +1,29 @@
 #include <Geode/Geode.hpp>
 #include <quartz/core/LuaManager.hpp>
+#include <quartz/core/RefTypes.hpp>
 
-// main.cpp is guaranteed to execute first
-// therefore it should be safe to start up the mod here
+using namespace quartz;
 
-$on_mod(Loaded) // once THIS mod is loaded
+#define $quartz_bind_ref_type(STATE, TYPE)\
+	STATE.new_usertype<TYPE##_ref>(#TYPE "_ref", sol::no_constructor, "val", sol::property(&TYPE##_ref::get, &TYPE##_ref::set))
+
+$on_mod(Loaded)
 {
-	QUARTZ_LUAMANAGER.setup();
+	$quartz_LuaManager.setup();
+
+	auto& luaState = $quartz_LuaManager.luaState();
+	$quartz_bind_ref_type(luaState, int);
+	$quartz_bind_ref_type(luaState, float);
+	$quartz_bind_ref_type(luaState, double);
+	$quartz_bind_ref_type(luaState, bool);
 }
 
-$on_game(ModsLoaded) // once ALL mods are loaded
+$on_game(ModsLoaded)
 {
-	QUARTZ_LUAMANAGER.loadScripts();
+	$quartz_LuaManager.loadScripts();
 }
 
 $on_game(Exiting)
 {
-	QUARTZ_LUAMANAGER.cleanup();
+	$quartz_LuaManager.cleanup();
 }

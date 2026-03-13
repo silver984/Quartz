@@ -1,5 +1,5 @@
 #include <quartz/core/LuaManager.hpp>
-#include <quartz/core/macros.hpp>
+#include <quartz/core/Macros.hpp>
 #include <Geode/loader/Log.hpp>
 #include <Geode/loader/Mod.hpp>
 #include <algorithm>
@@ -32,8 +32,8 @@ void LuaManager::setup()
 	using enum sol::lib;
 	m_luaState.open_libraries(base, string, table, math, utf8);
 
-	QUARTZ_CREATE_TABLE(m_luaState, hook_ids);
-	QUARTZ_CREATE_TABLE(m_luaState, cocos2d);
+	$quartz_create_table(m_luaState, "hook_ids");
+	$quartz_create_table(m_luaState, "cocos2d");
 
 	m_luaState.set_function("modify", [this](int id, sol::function callback)
 							{
@@ -45,7 +45,7 @@ void LuaManager::setup()
 									return;
 								}
 
-								geode::log::debug("Adding hook {} | registry_index: {}", id, callback.registry_index());
+								geode::log::debug("Adding hook with id {} at registry index {}", id, callback.registry_index());
 								m_hooks[hookID].emplace_back(std::move(callback));
 							});
 
@@ -80,13 +80,21 @@ void LuaManager::loadScripts()
 
 	m_scripts.clear();
 
-	for (const auto& entry : std::filesystem::directory_iterator(m_scriptsDir))
+	try
 	{
-		if (entry.path().extension() == ".lua")
+		for (const auto& entry : std::filesystem::directory_iterator(m_scriptsDir))
 		{
-			m_scripts.push_back(entry.path());
-			geode::log::debug("Added script \"{}\" to global scripts", entry.path().filename().string());
+			if (entry.path().extension() == ".lua")
+			{
+				m_scripts.push_back(entry.path());
+				geode::log::debug("Added script \"{}\" to global scripts", entry.path().filename().string());
+			}
 		}
+	}
+	catch (const std::filesystem::filesystem_error& error)
+	{
+		geode::log::error("Failed to add scripts due to filesystem error | what: {}", error.what());
+		return;
 	}
 
 	std::ranges::sort(m_scripts);

@@ -9,7 +9,7 @@
 	"name": "Quartz",
 	"version": "v1.0.0",
 	"developer": "SILVERSTAR",
-	"description": "A Geode mod that exposes Geometry Dash’s API to Lua for scripting",
+	"description": "A Lua scripting SDK and runtime for Geometry Dash.",
 	"dependencies": {
 		"geode.node-ids": ">=v1.20.0"
 	},
