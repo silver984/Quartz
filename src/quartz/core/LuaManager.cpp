@@ -58,7 +58,7 @@ void LuaManager::cleanup()
 
 void LuaManager::runScripts()
 {
-	auto errorNotif = geode::Notification::create("Failed to run scripts", geode::NotificationIcon::Error);
+	auto errorNotif = geode::Notification::create("Failed to run script/s", geode::NotificationIcon::Error);
 
 	if (!m_setup)
 	{
@@ -75,7 +75,7 @@ void LuaManager::runScripts()
 		callbacks.clear();
 	}
 
-	geode::log::debug("Attempting to add scripts...");
+	geode::log::debug("Attempting to add script/s...");
 
 	try
 	{
@@ -110,7 +110,7 @@ void LuaManager::runScripts()
 
 	std::ranges::sort(m_scriptsDict);
 
-	geode::log::debug("Attempting to run added scripts...");
+	geode::log::debug("Attempting to run added script/s...");
 	
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -145,7 +145,7 @@ void LuaManager::runScripts()
 	std::chrono::duration<double> elapsed = end - start;
 	geode::log::debug("Took {}s", elapsed.count());
 	
-	geode::Notification::create(fmt::format("Successfully ran {} scripts", m_scriptsDict.size()), geode::NotificationIcon::Success)->show();
+	geode::Notification::create(fmt::format("Successfully ran {} script/s", m_scriptsDict.size()), geode::NotificationIcon::Success)->show();
 	
 	m_scriptsDict.clear();
 }

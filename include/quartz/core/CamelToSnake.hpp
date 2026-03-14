@@ -1,8 +1,12 @@
-#include <quartz/core/SnakeCase.hpp>
+#pragma once
+
+#include <string>
 #include <cctype>
 #include <cstdint>
 
-std::string quartz::camelToSnake(const std::string& camel)
+namespace quartz
+{
+constexpr std::string camelToSnake(const std::string& camel)
 {
     std::string snake;
     snake.reserve(camel.size() + camel.size() / 2);
@@ -30,3 +34,4 @@ std::string quartz::camelToSnake(const std::string& camel)
 
     return snake;
 }
+} // quartz

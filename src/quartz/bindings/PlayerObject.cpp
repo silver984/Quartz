@@ -1,90 +1,59 @@
 #include <quartz/bindings/PlayerObject.hpp>
 #include <Geode/Geode.hpp>
 #include <quartz/core/LuaManager.hpp>
-#include <quartz/core/SnakeCase.hpp>
+#include <quartz/core/Macros.hpp>
+#include <quartz/core/CamelToSnake.hpp>
 #include <quartz/core/RefTypes.hpp>
 #include <sol/sol.hpp>
 #include <exception>
-
-// TODO: move these somewhere else once finalized
-
-// make sure quartz's callbacks happens before everything else
-#define $quartz_enable_hook_priority(CLASS, HOOK, SELF)\
-    if (!SELF.setHookPriority(#CLASS "::" #HOOK, geode::Priority::EarlyPre))\
-    {\
-        geode::log::warn("Failed to enable hook priority for " #CLASS "::" #HOOK);\
-    }\
-    else\
-    {\
-        geode::log::debug("Successfully enabled hook priority for " #CLASS "::" #HOOK);\
-    }
-
-#define $quartz_log_callback_exception(CLASS, HOOK, ERR)\
-    geode::log::error("Callback for hook id #{} caused an exception | what: {}", static_cast<int>(quartz::HookIDs::CLASS##_##HOOK), ERR.what())
-
-#define $quartz_log_callback_error(CLASS, HOOK, RESULT)\
-    sol::error err = RESULT;\
-    geode::log::error("Callback for hook id #{} caused an error | what: {}", static_cast<int>(quartz::HookIDs::CLASS##_##HOOK), err.what())
 
 namespace quartz
 {
 void lua_PlayerObject::onModify(auto& self)
 {
+    $quartz_enable_hook_priority(PlayerObject, init, self);
     $quartz_enable_hook_priority(PlayerObject, update, self);
 }
 
-/* TODO: return value hooks
 bool lua_PlayerObject::init(int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer)
+{
+    $quartz_run_hook_callbacks(PlayerObject, init, $quartz_check_type_return(bool),
+                               (static_cast<PlayerObject*>(this), quartz::int_ref(&player), quartz::int_ref(&ship), gameLayer, layer, quartz::bool_ref(&playLayer)),
+                               player, ship, gameLayer, layer, playLayer);
+}
+
+bool lua_PlayerObject::initDummy(int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer)
 {
     return PlayerObject::init(player, ship, gameLayer, layer, playLayer);
 }
-*/
 
 void lua_PlayerObject::update(float dt)
 {
-    auto& hookCallbacks = quartz::LuaManager::get().getHookCallbacks(quartz::HookIDs::PlayerObject_update);
+    $quartz_run_hook_callbacks(PlayerObject, update, $quartz_check_nil_return(),
+                               (static_cast<PlayerObject*>(this), quartz::float_ref(&dt)),
+                               dt);
+}
 
-    if (hookCallbacks.empty())
-    {
-        PlayerObject::update(dt);
-        return;
-    }
-
-    for (auto it = hookCallbacks.begin(); it != hookCallbacks.end();)
-    {
-        sol::protected_function_result result;
-
-        try
-        {
-            result = (*it)(static_cast<PlayerObject*>(this), quartz::float_ref(&dt));
-        }
-        catch (const std::exception& e)
-        {
-            $quartz_log_callback_exception(PlayerObject, update, e);
-            it = hookCallbacks.erase(it);
-            continue;
-        }
-
-        if (!result.valid())
-        {
-            $quartz_log_callback_error(PlayerObject, update, result);
-            it = hookCallbacks.erase(it);
-            continue;
-        }
-
-        if (result.return_count() > 0)
-        {
-            sol::object obj = result.get<sol::object>(0);
-
-            if (obj.is<sol::lua_nil_t>())
-            {
-                return;
-            }
-        }
-
-        ++it;
-    }
-
-    PlayerObject::update(dt);
+void lua_PlayerObject::updateDummy(float dt)
+{
+    return PlayerObject::update(dt);
 }
 } // quartz
+
+$geode_on_mod(Loaded)
+{
+    auto& luaState = quartz::LuaManager::get().luaState();
+
+    sol::table hookIDs = luaState["quartz"]["HookIDs"];
+
+    if (hookIDs.valid())
+    {
+        hookIDs.new_enum("PlayerObject",
+                         $quartz_define_enum_val(PlayerObject, init),
+                         $quartz_define_enum_val(PlayerObject, update));
+    }
+
+    luaState.new_usertype<PlayerObject>("PlayerObject", sol::no_constructor,
+                                        $quartz_bind_function(PlayerObject, init, (PlayerObject* obj_, int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer), player, ship, gameLayer, layer, playLayer),
+                                        $quartz_bind_function(PlayerObject, update, (PlayerObject* obj_, float dt), dt));
+}
