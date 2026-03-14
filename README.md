@@ -1,2 +1,2 @@
 # Quartz
-A Geode mod that exposes Geometry Dash’s API to Lua for scripting
+Quartz is a Lua scripting SDK and runtime for Geometry Dash.

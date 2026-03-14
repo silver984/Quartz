@@ -19,5 +19,10 @@
 			"name": "Scripts Directory",
 			"default": "{gd_dir}/quartz"
 		}
+	},
+	"resources": {
+		"sprites": [
+			"resources/*.png"
+		]
 	}
 }

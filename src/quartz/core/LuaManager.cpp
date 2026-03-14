@@ -1,9 +1,10 @@
 #include <quartz/core/LuaManager.hpp>
-#include <quartz/core/Macros.hpp>
 #include <Geode/loader/Log.hpp>
 #include <Geode/loader/Mod.hpp>
+#include <Geode/ui/Notification.hpp>
 #include <algorithm>
 #include <exception>
+#include <chrono>
 
 namespace quartz
 {
@@ -29,25 +30,10 @@ void LuaManager::setup()
 		}
 	}
 
-	using enum sol::lib;
-	m_luaState.open_libraries(base, string, table, math, utf8);
-
-	$quartz_create_table(m_luaState, "hook_ids");
-	$quartz_create_table(m_luaState, "cocos2d");
-
-	m_luaState.set_function("modify", [this](int id, sol::function callback)
-							{
-								quartz::HookIDs hookID = static_cast<quartz::HookIDs>(id);
-
-								if (!quartz::isValidHookID(hookID))
-								{
-									geode::log::warn("Invalid hook id: {}", id);
-									return;
-								}
-
-								geode::log::debug("Adding hook with id {} at registry index {}", id, callback.registry_index());
-								m_hooks[hookID].emplace_back(std::move(callback));
-							});
+	{
+		using enum sol::lib;
+		m_luaState.open_libraries(base, string, table, math, utf8);
+	}
 
 	m_setup = true;
 }
@@ -59,60 +45,108 @@ void LuaManager::cleanup()
 		return;
 	}
 
-	for (auto& [id, vec] : m_hooks)
+	for (auto& callbacks : m_hookCallbacks)
 	{
-		vec.clear();
+		callbacks.clear();
 	}
 
-	m_hooks.clear();
 	m_luaState.collect_garbage();
 	m_luaState = sol::state();
 
 	m_setup = false;
 }
 
-void LuaManager::loadScripts()
+void LuaManager::runScripts()
 {
+	auto errorNotif = geode::Notification::create("Failed to run scripts", geode::NotificationIcon::Error);
+
 	if (!m_setup)
 	{
+		if (errorNotif)
+		{
+			errorNotif->show();
+		}
+
 		return;
 	}
 
-	m_scripts.clear();
+	for (auto& callbacks : m_hookCallbacks)
+	{
+		callbacks.clear();
+	}
+
+	geode::log::debug("Attempting to add scripts...");
 
 	try
 	{
+		auto start = std::chrono::high_resolution_clock::now();
+
 		for (const auto& entry : std::filesystem::directory_iterator(m_scriptsDir))
 		{
 			if (entry.path().extension() == ".lua")
 			{
-				m_scripts.push_back(entry.path());
-				geode::log::debug("Added script \"{}\" to global scripts", entry.path().filename().string());
+				m_scriptsDict.push_back(entry.path());
+				geode::log::debug("Added script \"{}\" | current total: {}", entry.path().filename().string(), m_scriptsDict.size());
 			}
 		}
+
+		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = end - start;
+		geode::log::debug("Took {}s", elapsed.count());
 	}
 	catch (const std::filesystem::filesystem_error& error)
 	{
 		geode::log::error("Failed to add scripts due to filesystem error | what: {}", error.what());
+		
+		m_scriptsDict.clear();
+		
+		if (errorNotif)
+		{
+			errorNotif->show();
+		}
+
 		return;
 	}
 
-	std::ranges::sort(m_scripts);
+	std::ranges::sort(m_scriptsDict);
 
-	for (const auto& path : m_scripts)
+	geode::log::debug("Attempting to run added scripts...");
+	
+	auto start = std::chrono::high_resolution_clock::now();
+
+	for (auto it = m_scriptsDict.begin(); it != m_scriptsDict.end();)
 	{
-		auto filename = path.filename().string();
-		auto result = m_luaState.script_file(path.string());
+		sol::protected_function_result scriptResult;
 
-		if (result.valid())
+		try
 		{
-			geode::log::debug("Global script \"{}\" running", filename);
+			sol::table env = m_luaState.create_table();
+			scriptResult = m_luaState.load_file((*it).string())(env);
 		}
-		else
+		catch (const std::exception& e)
 		{
-			sol::error err = result;
-			geode::log::error("Global script \"{}\" invalid | what: {}", filename, err.what());
+			geode::log::error("Script \"{}\" caused an exception | what: {}", (*it).filename().string(), e.what());
+			it = m_scriptsDict.erase(it);
+			continue;
 		}
+
+		if (!scriptResult.valid())
+		{
+			sol::error err = scriptResult;
+			geode::log::error("Script \"{}\" invalid | what: {}", (*it).filename().string(), err.what());
+			it = m_scriptsDict.erase(it);
+			continue;
+		}
+
+		++it;
 	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = end - start;
+	geode::log::debug("Took {}s", elapsed.count());
+	
+	geode::Notification::create(fmt::format("Successfully ran {} scripts", m_scriptsDict.size()), geode::NotificationIcon::Success)->show();
+	
+	m_scriptsDict.clear();
 }
 } // quartz

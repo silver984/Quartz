@@ -4,8 +4,8 @@
 #include <sol/sol.hpp>
 #include <filesystem>
 #include <vector>
-#include <unordered_map>
-#include <string>
+#include <array>
+#include <cstdint>
 
 namespace quartz
 {
@@ -29,12 +29,12 @@ public:
 
 	void setup();
 	void cleanup();
-	void loadScripts();
+	void runScripts();
 	// TODO: reloading
 
-	inline std::unordered_map<quartz::HookIDs, std::vector<sol::function>>& hooks()
+	inline std::vector<sol::function>& getHookCallbacks(HookIDs id)
 	{
-		return m_hooks;
+		return m_hookCallbacks[static_cast<size_t>(id)];
 	}
 
 	inline sol::state& luaState()
@@ -46,11 +46,7 @@ private:
 	bool m_setup = false;
 	sol::state m_luaState;
 	std::filesystem::path m_scriptsDir;
-	std::vector<std::filesystem::path> m_scripts;
-	std::unordered_map<quartz::HookIDs, std::vector<sol::function>> m_hooks;
+	std::vector<std::filesystem::path> m_scriptsDict;
+	std::array<std::vector<sol::function>, quartz::HookIDs::_COUNT> m_hookCallbacks;
 };
 } // quartz
-
-#ifndef $quartz_LuaManager
-#define $quartz_LuaManager quartz::LuaManager::get()
-#endif

@@ -1,9 +1,11 @@
-#include <quartz/core/Helpers.hpp>
+#include <quartz/core/SnakeCase.hpp>
 #include <cctype>
+#include <cstdint>
 
 std::string quartz::camelToSnake(const std::string& camel)
 {
     std::string snake;
+    snake.reserve(camel.size() + camel.size() / 2);
 
     for (size_t i = 0; i < camel.size(); ++i)
     {
@@ -11,16 +13,14 @@ std::string quartz::camelToSnake(const std::string& camel)
 
         if (std::isupper(static_cast<unsigned char>(c)))
         {
-            if (i > 0 && std::islower(static_cast<unsigned char>(camel[i - 1])))
-            {
-                snake += '_';
-            }
-            else if (i > 0 && i + 1 < camel.size() && std::islower(static_cast<unsigned char>(camel[i + 1])))
+            bool insertUnderscore = i > 0 && (std::islower(static_cast<unsigned char>(camel[i - 1])) || (i + 1 < camel.size() && std::islower(static_cast<unsigned char>(camel[i + 1]))));
+
+            if (insertUnderscore)
             {
                 snake += '_';
             }
 
-            snake += std::tolower(static_cast<unsigned char>(c));
+            snake += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
         }
         else
         {

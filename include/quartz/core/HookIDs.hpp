@@ -10,7 +10,7 @@ enum HookIDs
 	_COUNT
 };
 
-constexpr bool isValidHookID(HookIDs id)
+constexpr bool isHookIDFound(HookIDs id)
 {
 	return id >= 0 && id < HookIDs::_COUNT;
 }
