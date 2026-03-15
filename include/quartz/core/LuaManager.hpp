@@ -6,9 +6,11 @@
 #include <vector>
 #include <array>
 #include <cstdint>
+#include <chrono>
 
 namespace quartz
 {
+
 class LuaManager
 {
 private:
@@ -27,12 +29,13 @@ public:
 	LuaManager(LuaManager&&) = delete;
 	LuaManager& operator=(LuaManager&&) = delete;
 
-	void setup();
+	void createScriptsDir();
+	void openLibs();
+	void createGlobals();
 	void cleanup();
-	void runScripts();
-	// TODO: reloading
+	void loadScripts();
 
-	inline std::vector<sol::function>& getHookCallbacks(HookIDs id)
+	inline std::vector<sol::function>& getHookCallbacks(quartz::HookIDs id)
 	{
 		return m_hookCallbacks[static_cast<size_t>(id)];
 	}
@@ -43,10 +46,19 @@ public:
 	}
 
 private:
-	bool m_setup = false;
+	inline std::chrono::steady_clock::time_point startTimer()
+	{
+		return std::chrono::high_resolution_clock::now();
+	}
+
+	void endTimer(const std::chrono::steady_clock::time_point& start);
+
+	bool m_openedLibs = false;
+	bool m_scriptsLoadedOnce = false;
 	sol::state m_luaState;
 	std::filesystem::path m_scriptsDir;
-	std::vector<std::filesystem::path> m_scriptsDict;
-	std::array<std::vector<sol::function>, quartz::HookIDs::_COUNT> m_hookCallbacks;
+	std::vector<std::filesystem::path> m_scriptDict;
+	std::array<std::vector<sol::function>, static_cast<size_t>(quartz::HookIDs::COUNT)> m_hookCallbacks;
 };
+
 } // quartz

@@ -2,16 +2,13 @@
 
 namespace quartz
 {
-enum HookIDs
+
+enum class HookIDs
 {
 	PlayerObject_init,
 	PlayerObject_update,
 
-	_COUNT
+	COUNT
 };
 
-constexpr bool isHookIDFound(HookIDs id)
-{
-	return id >= 0 && id < HookIDs::_COUNT;
-}
 } // quartz

@@ -5,6 +5,7 @@
 
 namespace quartz
 {
+
 class $modify(QuartzMenuLayer, MenuLayer)
 {
 	bool init() override;
@@ -17,4 +18,5 @@ class $modify(QuartzMenuLayer, MenuLayer)
 		CCMenuItemSpriteExtra* m_quartzBtn = nullptr;
 	};
 };
+
 } // quartz

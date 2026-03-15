@@ -4,6 +4,7 @@
 
 namespace quartz
 {
+
 bool QuartzMenuLayer::init()
 {
 	if (!MenuLayer::init())
@@ -43,6 +44,7 @@ bool QuartzMenuLayer::init()
 
 void QuartzMenuLayer::onQuartz(cocos2d::CCObject* sender)
 {
-	quartz::LuaManager::get().runScripts();
+	quartz::LuaManager::get().loadScripts();
 }
+
 } // quartz
