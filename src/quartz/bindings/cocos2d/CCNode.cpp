@@ -6,10 +6,9 @@ using namespace cocos2d;
 
 $on_mod(Loaded)
 {
-    auto& luaState = quartz::LuaManager::get().luaState();
+    sol::table cocos2d = quartz::LuaManager::get().luaState()["cocos2d"];
 
-    sol::table cocos2d = luaState["cocos2d"];
-    if (cocos2d.valid())
+    if (!cocos2d["CCNode"].valid())
     {
         cocos2d.new_usertype<CCNode>(
             "CCNode",
