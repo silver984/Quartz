@@ -45,15 +45,17 @@ namespace quartz
 			return;
 		}
 
-		if (!m_luaState["gd"].valid())
-		{
-			m_luaState["gd"] = m_luaState.create_table();
-		}
+		m_luaState["quartz"] = m_luaState.create_table();
+		m_luaState["gd"] = m_luaState.create_table();
 
-		if (!m_luaState["cocos2d"].valid())
-		{
-			m_luaState["cocos2d"] = m_luaState.create_table();
-		}
+		sol::table quartz = m_luaState["quartz"];
+		quartz.set_function(
+			"hook",
+			[this](const std::string& name, sol::protected_function&& callback)
+			{
+				m_hooks[name].emplace_back(std::move(callback));
+			}
+		);
 	}
 
 	void LuaManager::cleanup()
@@ -64,6 +66,14 @@ namespace quartz
 		}
 
 		m_environments.clear();
+
+		for (auto& hook : m_hooks)
+		{
+			hook.second.clear();
+		}
+
+		m_hooks.clear();
+
 		m_luaState.collect_garbage();
 		m_luaState = sol::state();
 
@@ -147,10 +157,22 @@ namespace quartz
 	// private
 	void LuaManager::runScripts(std::vector<std::filesystem::path>& scripts)
 	{
+		if (scripts.empty())
+		{
+			return;
+		}
+
 		geode::log::debug("Attempting to run {}...",
 						  (scripts.size() > 1) ? "scripts" : "script");
 
 		m_environments.clear();
+
+		for (auto& hook : m_hooks)
+		{
+			hook.second.clear();
+		}
+
+		m_hooks.clear();
 
 		auto start = startTimer();
 

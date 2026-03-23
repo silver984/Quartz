@@ -4,10 +4,12 @@
 
 namespace quartz
 {
-	struct lua_PlayerObject : geode::Modify<lua_PlayerObject, PlayerObject>
-	{
-		static void onModify(auto& self);
-		bool init(int player, int ship, GJBaseGameLayer * gameLayer, cocos2d::CCLayer * layer, bool playLayer);
-		void update(float dt) override;
-	};
-}
+
+struct lua_PlayerObject : geode::Modify<lua_PlayerObject, PlayerObject>
+{
+	static void onModify(auto& self);
+	bool init(int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer);
+	void update(float dt) override;
+};
+
+} // quartz

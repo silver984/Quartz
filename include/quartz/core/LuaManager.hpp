@@ -3,9 +3,11 @@
 #include <sol/sol.hpp>
 #include <filesystem>
 #include <vector>
+#include <unordered_map>
 #include <chrono>
 #include <cstdint>
 #include <string>
+#include <functional>
 
 namespace quartz
 {
@@ -32,10 +34,20 @@ namespace quartz
 		void createGlobals();
 		void cleanup();
 		void loadScripts();
-	
+
 		inline sol::state& luaState()
 		{
 			return m_luaState;
+		}
+
+		inline std::vector<sol::environment>& environments()
+		{
+			return m_environments;
+		}
+
+		inline std::unordered_map<std::string, std::vector<sol::protected_function>>& hooks()
+		{
+			return m_hooks;
 		}
 
 	private:
@@ -52,5 +64,6 @@ namespace quartz
 		sol::state m_luaState;
 		std::filesystem::path m_scriptsDir;
 		std::vector<sol::environment> m_environments;
+		std::unordered_map<std::string, std::vector<sol::protected_function>> m_hooks;
 	};
 }
