@@ -1,20 +1,16 @@
 #include <quartz/core/LuaManager.hpp>
-#include <Geode/Geode.hpp>
+#include <quartz/core/Macros.hpp>
 
-$on_mod(Loaded)
+ON_QUARTZ_LOADED
 {
 	auto& luaManager = quartz::LuaManager::get();
 	luaManager.createScriptsDir();
 	luaManager.openLibs();
 	luaManager.createGlobals();
+	luaManager.loadScripts();
 }
 
-$on_game(Loaded)
-{
-	quartz::LuaManager::get().loadScripts();
-}
-
-$on_game(Exiting)
+ON_GD_EXITING
 {
 	quartz::LuaManager::get().cleanup();
 }

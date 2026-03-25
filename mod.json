@@ -10,6 +10,7 @@
 	"version": "v1.0.0",
 	"developer": "SILVERSTAR",
 	"description": "A Lua scripting SDK and runtime for Geometry Dash.",
+	"early-load": true,
 	"links": {
 		"source": "https://github.com/silver984/Quartz"
 	},
