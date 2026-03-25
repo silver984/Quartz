@@ -6,7 +6,7 @@
 namespace quartz
 {
 
-class $modify(QuartzMenuLayer, MenuLayer)
+struct QuartzMenuLayer : geode::Modify<QuartzMenuLayer, MenuLayer>
 {
 	bool init() override;
 	void onQuartz(cocos2d::CCObject* sender);

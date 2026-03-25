@@ -3,6 +3,7 @@
 #include <Geode/loader/Mod.hpp>
 #include <algorithm>
 #include <exception>
+#include <fmt/args.h>
 
 namespace quartz
 {
@@ -46,15 +47,88 @@ void LuaManager::createGlobals()
 	}
 
 	m_luaState["quartz"] = m_luaState.create_table();
+	m_luaState["geode"] = m_luaState.create_table();
+	m_luaState["fmt"] = m_luaState.create_table();
 	m_luaState["gd"] = m_luaState.create_table();
 	m_luaState["cocos2d"] = m_luaState.create_table();
+	m_luaState["geode"]["log"] = m_luaState.create_table();
 
 	sol::table quartz = m_luaState["quartz"];
 	quartz.set_function(
 		"hook",
-		[this](const std::string& name, sol::protected_function&& callback)
+		[this](const char* name, sol::protected_function&& callback)
 		{
 			m_hooks[name].emplace_back(std::move(callback));
+		}
+	);
+
+	sol::table fmt = m_luaState["fmt"];
+	fmt.set_function(
+		"format",
+		[](const char* fmtStr, sol::variadic_args va)
+		{
+			fmt::dynamic_format_arg_store<fmt::format_context> store;
+
+			for (auto v : va)
+			{
+				if (v.is<std::string>())
+				{
+					store.push_back(v.get<std::string>());
+				}
+				else if (v.is<const char*>())
+				{
+					store.push_back(v.get<const char*>());
+				}
+				else if (v.is<int>())
+				{
+					store.push_back(v.get<int>());
+				}
+				else if (v.is<float>())
+				{
+					store.push_back(v.get<float>());
+				}
+				else if (v.is<double>())
+				{
+					store.push_back(v.get<double>());
+				}
+				else if (v.is<bool>())
+				{
+					store.push_back(v.get<bool>());
+				}
+				else
+				{
+					store.push_back("<unsupported>");
+				}
+			}
+
+			return fmt::vformat(fmtStr, store);
+		}
+	);
+
+	sol::table log = m_luaState["geode"]["log"];
+	log.set_function(
+		"info",
+		[this](const char* fmtStr, sol::variadic_args va)
+		{
+			sol::protected_function formatFn = m_luaState["fmt"]["format"];
+
+			if (!formatFn.valid())
+			{
+				geode::log::error("Lua's reference for fmt.format() is/became invalid!");
+				return;
+			}
+
+			sol::protected_function_result formatted = formatFn(fmtStr, va);
+
+			if (!formatted.valid())
+			{
+				sol::error err = formatted;
+				geode::log::error("Lua caught a formatting error | what: {}", err.what());
+				return;
+			}
+
+			std::string msg = formatted;
+			geode::log::info("{}", msg);
 		}
 	);
 }
