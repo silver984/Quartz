@@ -56,7 +56,7 @@ void LuaManager::createGlobals()
 	sol::table quartz = m_luaState["quartz"];
 	quartz.set_function(
 		"hook",
-		[this](const char* name, sol::protected_function&& callback)
+		[this](const std::string& name, sol::protected_function&& callback)
 		{
 			m_hooks[name].emplace_back(std::move(callback));
 		}
@@ -65,7 +65,7 @@ void LuaManager::createGlobals()
 	sol::table fmt = m_luaState["fmt"];
 	fmt.set_function(
 		"format",
-		[](const char* fmtStr, sol::variadic_args va)
+		[](const std::string& fmtStr, sol::variadic_args va)
 		{
 			fmt::dynamic_format_arg_store<fmt::format_context> store;
 
@@ -106,31 +106,37 @@ void LuaManager::createGlobals()
 	);
 
 	sol::table log = m_luaState["geode"]["log"];
-	log.set_function(
-		"info",
-		[this](const char* fmtStr, sol::variadic_args va)
-		{
-			sol::protected_function formatFn = m_luaState["fmt"]["format"];
 
-			if (!formatFn.valid())
-			{
-				geode::log::error("Lua's reference for fmt.format() is/became invalid!");
-				return;
-			}
+#define CREATE_LUA_LOG_FN(LEVEL)															\
+	log.set_function(																		\
+	#LEVEL,																					\
+		[this](const std::string& fmtStr, sol::variadic_args va)							\
+		{																					\
+			sol::protected_function formatFn = m_luaState["fmt"]["format"];					\
+			if (!formatFn.valid())															\
+			{																				\
+				geode::log::error("Lua's reference for fmt.format() is/became invalid!");	\
+				return;																		\
+			}																				\
+			sol::protected_function_result formatted = formatFn(fmtStr, va);				\
+			if (!formatted.valid())															\
+			{																				\
+				sol::error err = formatted;													\
+				geode::log::error("Lua caught a formatting error | what: {}", err.what());	\
+				return;																		\
+			}																				\
+			std::string msg = formatted;													\
+			geode::log::LEVEL("{}", msg);													\
+		}																					\
+	)
 
-			sol::protected_function_result formatted = formatFn(fmtStr, va);
+	CREATE_LUA_LOG_FN(debug);
+	CREATE_LUA_LOG_FN(error);
+	CREATE_LUA_LOG_FN(info);
+	CREATE_LUA_LOG_FN(trace);
+	CREATE_LUA_LOG_FN(warn);
 
-			if (!formatted.valid())
-			{
-				sol::error err = formatted;
-				geode::log::error("Lua caught a formatting error | what: {}", err.what());
-				return;
-			}
-
-			std::string msg = formatted;
-			geode::log::info("{}", msg);
-		}
-	);
+#undef CREATE_LUA_LOG_FN
 }
 
 void LuaManager::cleanup()
