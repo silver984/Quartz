@@ -15,11 +15,7 @@ namespace quartz
 template <typename Self>
 void enableHookPriority(Self& self, const char* hook)
 {
-    if (self.setHookPriority(hook, geode::Priority::Last))
-    {
-        geode::log::debug("Enabled hook priority for {}", hook);
-    }
-    else
+    if (!self.setHookPriority(hook, geode::Priority::Last))
     {
         geode::log::warn("Failed to enable hook priority for {}", hook);
     }
@@ -40,43 +36,43 @@ Ret runHookChain(const std::string& hookName, Self* self, Original original, Arg
     auto& vec = it->second;
 
     std::function<Ret(size_t, Self*, Args...)> chain =
-        [&chain, &vec, original](size_t index, Self* self, Args... args) -> Ret
+        [&chain, &vec, original](size_t index, Self* chainSelf, Args... chainArgs) -> Ret
         {
             if (index >= vec.size())
             {
-                return std::invoke(original, self, args...);
+                return std::invoke(original, chainSelf, chainArgs...);
             }
 
             sol::protected_function_result result;
 
             try
             {
-                auto proceed =
-                    [&chain, index, self](Args... proceedArgs) -> Ret
+                std::function<Ret(Args...)> proceed =
+                    [&chain, index, chainSelf](Args... proceedArgs) -> Ret
                     {
-                        return chain(index + 1, self, proceedArgs...);
+                        return chain(index + 1, chainSelf, proceedArgs...);
                     };
 
-                result = vec[index].call(self, proceed, args...);
+                result = vec[index].call(chainSelf, proceed, chainArgs...);
             }
             catch (const std::exception& e)
             {
                 geode::log::error("Lua exception: {}", e.what());
-                return std::invoke(original, self, args...);
+                return std::invoke(original, chainSelf, chainArgs...);
             }
 
             if (!result.valid())
             {
                 sol::error err = result;
                 geode::log::error("Lua error: {}", err.what());
-                return std::invoke(original, self, args...);
+                return std::invoke(original, chainSelf, chainArgs...);
             }
 
             if constexpr (!std::is_void_v<Ret>)
             {
                 if (result.return_count() <= 0)
                 {
-                    return std::invoke(original, self, args...);
+                    return std::invoke(original, chainSelf, chainArgs...);
                 }
 
                 return result.get<Ret>();

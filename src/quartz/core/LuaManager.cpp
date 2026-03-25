@@ -47,6 +47,7 @@ void LuaManager::createGlobals()
 
 	m_luaState["quartz"] = m_luaState.create_table();
 	m_luaState["gd"] = m_luaState.create_table();
+	m_luaState["cocos2d"] = m_luaState.create_table();
 
 	sol::table quartz = m_luaState["quartz"];
 	quartz.set_function(
@@ -88,32 +89,7 @@ void LuaManager::loadScripts()
 	}
 
 	std::vector<std::filesystem::path> scripts = collectScripts();
-
 	runScripts(scripts);
-
-	/*
-	
-	update this
-
-	std::string statusLog;
-	geode::NotificationIcon statusIcon;
-	size_t scriptCount = scripts.size();
-
-	if (scriptCount > 0)
-	{
-		statusLog = fmt::format("Loaded {} {}",
-								scriptCount, (scriptCount > 1) ? "scripts" : "script");
-		statusIcon = geode::NotificationIcon::Success;
-	}
-	else
-	{
-		statusLog = "No valid scripts";
-		statusIcon = geode::NotificationIcon::Warning;
-	}
-
-	geode::Notification::create(statusLog, statusIcon, 3.f)->show();
-	
-	*/
 }
 
 // private

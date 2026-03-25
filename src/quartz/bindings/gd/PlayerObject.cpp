@@ -25,10 +25,25 @@ void lua_PlayerObject::update(float dt)
 ON_QUARTZ_LOADED
 {
     sol::table gd = quartz::LuaManager::get().luaState()["gd"];
-    gd.new_usertype<quartz::lua_PlayerObject>(
+    gd.new_usertype<PlayerObject>(
         "PlayerObject",
+
         sol::no_constructor,
-        "init", &quartz::lua_PlayerObject::init,
-        "update", &quartz::lua_PlayerObject::update
+        
+        sol::base_classes, sol::bases<cocos2d::CCNode>(),
+        
+        "create", &PlayerObject::create,
+        
+        "init",
+        [](PlayerObject* self, int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer)
+        {
+            return static_cast<quartz::lua_PlayerObject*>(self)->init(player, ship, gameLayer, layer, playLayer);
+        },
+        
+        "update",
+        [](PlayerObject* self, float dt)
+        {
+            static_cast<quartz::lua_PlayerObject*>(self)->update(dt);
+        }
     );
 }
