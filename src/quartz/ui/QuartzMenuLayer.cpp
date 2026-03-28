@@ -33,7 +33,7 @@ bool QuartzMenuLayer::init()
 		}
 	}
 
-	auto bottomMenu = this->getChildByID("bottom-menu");
+	auto bottomMenu = getChildByID("bottom-menu");
 
 	if (bottomMenu && m_fields->m_quartzBtn)
 	{

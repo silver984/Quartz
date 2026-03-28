@@ -2,7 +2,6 @@
 #include <quartz/core/Macros.hpp>
 #include <new>
 
-#define SELF static_cast<PlayerObject*>(this)
 void quartz::lua_PlayerObject::onModify(auto& self)
 {
     ENABLE_HOOK_PRIORITY(PlayerObject, create);
@@ -23,7 +22,8 @@ bool quartz::lua_PlayerObject::init(int player, int ship, GJBaseGameLayer* gameL
 {
     return quartz::runHookChain<bool>(
         "PlayerObject:init",
-        SELF, NON_STATIC_FN(PlayerObject, init),
+        static_cast<PlayerObject*>(this),
+        NON_STATIC_FN(PlayerObject, init),
         player, ship, gameLayer, layer, playLayer
     );
 }
@@ -32,12 +32,12 @@ void quartz::lua_PlayerObject::update(float dt)
 {
     quartz::runHookChain<void>(
         "PlayerObject:update",
-        SELF, NON_STATIC_FN(PlayerObject, update),
+        static_cast<PlayerObject*>(this),
+        NON_STATIC_FN(PlayerObject, update),
         dt
     );
 }
-#undef SELF
-#define SELF static_cast<quartz::lua_PlayerObject*>(self)
+
 ON_QUARTZ_LOADED
 {
     auto& luaManager = quartz::LuaManager::get();
@@ -46,11 +46,27 @@ ON_QUARTZ_LOADED
     
     state.new_usertype<PlayerObject>(
         "PlayerObject",
-        sol::no_constructor,
+        sol::constructors<PlayerObject()>(),
         sol::base_classes, sol::bases<cocos2d::CCNode>()
     );
 
     sol::table usertype = state["PlayerObject"];
+
+    usertype.set_function(
+        "__fields", [](sol::this_state s, PlayerObject* self)
+        {
+            auto __self = static_cast<quartz::lua_PlayerObject*>(self);
+            auto& luaFields = __self->m_fields->luaFields;
+
+            if (!luaFields.valid())
+            {
+                sol::state_view lua(s);
+                luaFields = lua.create_table();
+            }
+
+            return luaFields;
+        }
+    );
 
     usertype.set_function(
         "alloc", []()
@@ -79,7 +95,8 @@ ON_QUARTZ_LOADED
     usertype.set_function(
         "init", [](PlayerObject* self, int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer)
         {
-            return SELF->init(player, ship, gameLayer, layer, playLayer);
+            auto __self = static_cast<quartz::lua_PlayerObject*>(self);
+            return __self->init(player, ship, gameLayer, layer, playLayer);
         }
     );
 
@@ -87,7 +104,8 @@ ON_QUARTZ_LOADED
     usertype.set_function(
         "update", [](PlayerObject* self, float dt)
         {
-            SELF->update(dt);
+            auto __self = static_cast<quartz::lua_PlayerObject*>(self);
+            __self->update(dt);
         }
     );
 }

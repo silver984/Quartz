@@ -28,14 +28,30 @@ Ret runHookChain(const std::string& hookName, Self* self, Original original, Arg
 
     if (!luaManager.isOpen())
     {
-        return std::invoke(original, self, args...);
+        if constexpr (std::is_void_v<Ret>)
+        {
+            std::invoke(original, self, args...);
+            return;
+        }
+        else
+        {
+            return std::invoke(original, self, args...);
+        }
     }
 
     auto& hooks = luaManager.luaHooks();
     auto it = hooks.find(hookName);
     if (it == hooks.end())
     {
-        return std::invoke(original, self, args...);
+        if constexpr (std::is_void_v<Ret>)
+        {
+            std::invoke(original, self, args...);
+            return;
+        }
+        else
+        {
+            return std::invoke(original, self, args...);
+        }
     }
 
     auto& vec = it->second;
@@ -44,7 +60,15 @@ Ret runHookChain(const std::string& hookName, Self* self, Original original, Arg
         {
             if (index >= vec.size())
             {
-                return std::invoke(original, chainSelf, chainArgs...);
+                if constexpr (std::is_void_v<Ret>)
+                {
+                    std::invoke(original, chainSelf, chainArgs...);
+                    return;
+                }
+                else
+                {
+                    return std::invoke(original, chainSelf, chainArgs...);
+                }
             }
 
             sol::protected_function_result result;
@@ -54,7 +78,14 @@ Ret runHookChain(const std::string& hookName, Self* self, Original original, Arg
                 std::function<Ret(Args...)> proceed =
                     [&chain, index, chainSelf](Args... proceedArgs) -> Ret
                     {
-                        return chain(index + 1, chainSelf, proceedArgs...);
+                        if constexpr (std::is_void_v<Ret>)
+                        {
+                            chain(index + 1, chainSelf, proceedArgs...);
+                        }
+                        else
+                        {
+                            return chain(index + 1, chainSelf, proceedArgs...);
+                        }
                     };
 
                 result = vec[index].call(chainSelf, proceed, chainArgs...);
@@ -62,14 +93,32 @@ Ret runHookChain(const std::string& hookName, Self* self, Original original, Arg
             catch (const std::exception& e)
             {
                 geode::log::error("Lua exception: {}", e.what());
-                return std::invoke(original, chainSelf, chainArgs...);
+
+                if constexpr (std::is_void_v<Ret>)
+                {
+                    std::invoke(original, chainSelf, chainArgs...);
+                    return;
+                }
+                else
+                {
+                    return std::invoke(original, chainSelf, chainArgs...);
+                }
             }
 
             if (!result.valid())
             {
                 sol::error err = result;
                 geode::log::error("Lua error: {}", err.what());
-                return std::invoke(original, chainSelf, chainArgs...);
+
+                if constexpr (std::is_void_v<Ret>)
+                {
+                    std::invoke(original, chainSelf, chainArgs...);
+                    return;
+                }
+                else
+                {
+                    return std::invoke(original, chainSelf, chainArgs...);
+                }
             }
 
             if constexpr (!std::is_void_v<Ret>)
@@ -93,14 +142,30 @@ Ret runStaticHookChain(const std::string& hookName, Original original, Args... a
 
     if (!luaManager.isOpen())
     {
-        return original(args...);
+        if constexpr (std::is_void_v<Ret>)
+        {
+            original(args...);
+            return;
+        }
+        else
+        {
+            return original(args...);
+        }
     }
 
     auto& hooks = luaManager.luaHooks();
     auto it = hooks.find(hookName);
     if (it == hooks.end())
     {
-        return original(args...);
+        if constexpr (std::is_void_v<Ret>)
+        {
+            original(args...);
+            return;
+        }
+        else
+        {
+            return original(args...);
+        }
     }
 
     auto& vec = it->second;
@@ -109,7 +174,15 @@ Ret runStaticHookChain(const std::string& hookName, Original original, Args... a
         {
             if (index >= vec.size())
             {
-                return original(chainArgs...);
+                if constexpr (std::is_void_v<Ret>)
+                {
+                    original(chainArgs...);
+                    return;
+                }
+                else
+                {
+                    return original(chainArgs...);
+                }
             }
 
             sol::protected_function_result result;
@@ -119,7 +192,14 @@ Ret runStaticHookChain(const std::string& hookName, Original original, Args... a
                 std::function<Ret(Args...)> proceed =
                     [&chain, index](Args... proceedArgs) -> Ret
                     {
-                        return chain(index + 1, proceedArgs...);
+                        if constexpr (std::is_void_v<Ret>)
+                        {
+                            chain(index + 1, proceedArgs...);
+                        }
+                        else
+                        {
+                            return chain(index + 1, proceedArgs...);
+                        }
                     };
 
                 result = vec[index].call(proceed, chainArgs...);
@@ -127,14 +207,32 @@ Ret runStaticHookChain(const std::string& hookName, Original original, Args... a
             catch (const std::exception& e)
             {
                 geode::log::error("Lua exception: {}", e.what());
-                return original(chainArgs...);
+                
+                if constexpr (std::is_void_v<Ret>)
+                {
+                    original(chainArgs...);
+                    return;
+                }
+                else
+                {
+                    return original(chainArgs...);
+                }
             }
 
             if (!result.valid())
             {
                 sol::error err = result;
                 geode::log::error("Lua error: {}", err.what());
-                return original(chainArgs...);
+                
+                if constexpr (std::is_void_v<Ret>)
+                {
+                    original(chainArgs...);
+                    return;
+                }
+                else
+                {
+                    return original(chainArgs...);
+                }
             }
 
             if constexpr (!std::is_void_v<Ret>)

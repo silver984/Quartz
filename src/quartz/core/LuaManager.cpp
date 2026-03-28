@@ -232,8 +232,6 @@ std::vector<std::filesystem::path> LuaManager::collectScripts()
 		return {};
 	}
 
-	std::ranges::sort(scripts);
-
 	return scripts;
 }
 

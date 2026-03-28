@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Geode/modify/PlayerObject.hpp>
+#include <quartz/core/LuaManager.hpp>
+#include <sol/sol.hpp>
 
 namespace quartz
 {
@@ -18,6 +20,11 @@ struct lua_PlayerObject : public geode::Modify<lua_PlayerObject, PlayerObject>
 	
 	// @lua[method] PlayerObject:update(dt)
 	void update(float dt) override;
+
+	struct Fields
+	{
+		sol::table luaFields;
+	};
 };
 
 } // quartz
