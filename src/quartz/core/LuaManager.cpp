@@ -8,7 +8,83 @@
 namespace quartz
 {
 
-void LuaManager::createScriptsDir()
+bool LuaManager::init()
+{
+	if (m_isInit)
+	{
+		return true;
+	}
+
+	if (!createScriptsDir())
+	{
+		return false;
+	}
+
+	createGlobals();
+
+	m_isInit = true;
+	return true;
+}
+
+void LuaManager::cleanup()
+{
+	if (!m_isInit)
+	{
+		return;
+	}
+
+	m_environments.clear();
+
+	for (auto& hook : m_luaHooks)
+	{
+		hook.second.clear();
+	}
+
+	m_luaHooks.clear();
+	m_validHooks.clear();
+
+	m_luaState.collect_garbage();
+	m_luaState = sol::state();
+
+	m_initLibs = false;
+	m_isInit = false;
+}
+
+bool LuaManager::loadScripts()
+{
+	if (!m_isInit || !initLibs())
+	{
+		return false;
+	}
+
+	std::vector<std::filesystem::path> scripts = collectScripts();
+
+	if (scripts.empty())
+	{
+		return false;
+	}
+
+	runScripts(scripts);
+	return true;
+}
+
+// private
+bool LuaManager::initLibs()
+{
+	if (m_initLibs)
+	{
+		return true;
+	}
+
+	using enum sol::lib;
+	m_luaState.open_libraries(base, string, table, math, utf8);
+
+	m_initLibs = true;
+	return true;
+}
+
+// private
+bool LuaManager::createScriptsDir()
 {
 	m_scriptsDir = geode::Mod::get()->getSettingValue<std::filesystem::path>("scripts-dir");
 
@@ -22,83 +98,62 @@ void LuaManager::createScriptsDir()
 		catch (const std::exception& e)
 		{
 			geode::log::error("Failed to create missing scripts directory | what: {}", e.what());
+			return false;
 		}
 	}
+
+	return true;
 }
 
-void LuaManager::openLibs()
-{
-	if (m_openedLibs)
-	{
-		return;
-	}
-
-	using enum sol::lib;
-	m_luaState.open_libraries(base, string, table, math, utf8);
-
-	m_openedLibs = true;
-}
-
+// private
 void LuaManager::createGlobals()
 {
-	if (!m_openedLibs)
-	{
-		return;
-	}
-
 	m_luaState["quartz"] = m_luaState.create_table();
 	m_luaState["geode"] = m_luaState.create_table();
 	m_luaState["fmt"] = m_luaState.create_table();
-	m_luaState["gd"] = m_luaState.create_table();
 	m_luaState["cocos2d"] = m_luaState.create_table();
 	m_luaState["geode"]["log"] = m_luaState.create_table();
 
 	sol::table quartz = m_luaState["quartz"];
 	quartz.set_function(
-		"hook",
-		[this](const std::string& name, sol::protected_function&& callback)
+		"hook", [this](const std::string& name, sol::protected_function&& callback)
 		{
-			m_hooks[name].emplace_back(std::move(callback));
+			if (!m_validHooks.contains(name))
+			{
+				geode::log::warn("A lua script attempted to insert an invalid hook: {}", name);
+				return;
+			}
+
+			m_luaHooks[name].push_back(std::move(callback));
 		}
 	);
 
 	sol::table fmt = m_luaState["fmt"];
 	fmt.set_function(
-		"format",
-		[](const std::string& fmtStr, sol::variadic_args va)
+		"format", [](const std::string& fmtStr, sol::variadic_args va)
 		{
 			fmt::dynamic_format_arg_store<fmt::format_context> store;
 
 			for (auto v : va)
 			{
-				if (v.is<std::string>())
-				{
-					store.push_back(v.get<std::string>());
-				}
-				else if (v.is<const char*>())
-				{
-					store.push_back(v.get<const char*>());
-				}
-				else if (v.is<int>())
-				{
-					store.push_back(v.get<int>());
-				}
-				else if (v.is<float>())
-				{
-					store.push_back(v.get<float>());
-				}
-				else if (v.is<double>())
-				{
-					store.push_back(v.get<double>());
-				}
-				else if (v.is<bool>())
-				{
-					store.push_back(v.get<bool>());
-				}
-				else
-				{
-					store.push_back("<unsupported>");
-				}
+
+#define CHECK_ARG(TYPE)					\
+	if (v.is<TYPE>())					\
+	{									\
+		store.push_back(v.get<TYPE>());	\
+		continue;						\
+	}
+
+				CHECK_ARG(std::string);
+				CHECK_ARG(const char*);
+				CHECK_ARG(int);
+				CHECK_ARG(float);
+				CHECK_ARG(double);
+				CHECK_ARG(bool);
+
+#undef CHECK_ARG
+				
+				store.push_back("<unsupported>");
 			}
 
 			return fmt::vformat(fmtStr, store);
@@ -109,13 +164,12 @@ void LuaManager::createGlobals()
 
 #define CREATE_LUA_LOG_FN(LEVEL)															\
 	log.set_function(																		\
-	#LEVEL,																					\
-		[this](const std::string& fmtStr, sol::variadic_args va)							\
+		#LEVEL, [this](const std::string& fmtStr, sol::variadic_args va)					\
 		{																					\
 			sol::protected_function formatFn = m_luaState["fmt"]["format"];					\
 			if (!formatFn.valid())															\
 			{																				\
-				geode::log::error("Lua's reference for fmt.format() is/became invalid!");	\
+				geode::log::error("Lua's reference for fmt.format() is/became invalid");	\
 				return;																		\
 			}																				\
 			sol::protected_function_result formatted = formatFn(fmtStr, va);				\
@@ -137,39 +191,6 @@ void LuaManager::createGlobals()
 	CREATE_LUA_LOG_FN(warn);
 
 #undef CREATE_LUA_LOG_FN
-}
-
-void LuaManager::cleanup()
-{
-	if (!m_openedLibs)
-	{
-		return;
-	}
-
-	m_environments.clear();
-
-	for (auto& hook : m_hooks)
-	{
-		hook.second.clear();
-	}
-
-	m_hooks.clear();
-
-	m_luaState.collect_garbage();
-	m_luaState = sol::state();
-
-	m_openedLibs = false;
-}
-
-void LuaManager::loadScripts()
-{
-	if (!m_openedLibs)
-	{
-		return;
-	}
-
-	std::vector<std::filesystem::path> scripts = collectScripts();
-	runScripts(scripts);
 }
 
 // private
@@ -219,22 +240,17 @@ std::vector<std::filesystem::path> LuaManager::collectScripts()
 // private
 void LuaManager::runScripts(std::vector<std::filesystem::path>& scripts)
 {
-	if (scripts.empty())
-	{
-		return;
-	}
-
 	geode::log::debug("Attempting to run {}...",
 					  (scripts.size() > 1) ? "scripts" : "script");
 
 	m_environments.clear();
 
-	for (auto& hook : m_hooks)
+	for (auto& hook : m_luaHooks)
 	{
 		hook.second.clear();
 	}
 
-	m_hooks.clear();
+	m_luaHooks.clear();
 
 	auto start = startTimer();
 

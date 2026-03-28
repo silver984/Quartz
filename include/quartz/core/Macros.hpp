@@ -5,17 +5,8 @@
 #include <Geode/loader/Mod.hpp>
 #include <quartz/core/Templates.hpp>
 
-#define ON_QUARTZ_LOADED\
-	$on_mod(Loaded)
-
-#define ON_GD_LOADED\
-	$on_game(Loaded)
-
-#define ON_GD_EXITING\
-	$on_game(Exiting)
-
-#define QUARTZ_RUN_HOOK_CHAIN(TYPE, NAMESPACE, CLASS, FN, ...)\
-	quartz::runHookChain<TYPE>(#NAMESPACE "." #CLASS "." #FN, static_cast<CLASS*>(this), [](CLASS* self, auto... args) { return self->CLASS::FN(args...); }, ##__VA_ARGS__)
-
-#define QUARTZ_ENABLE_HOOK_PRIORITY(CLASS, FN)\
-	quartz::enableHookPriority(self, #CLASS "::" #FN)
+#define ON_QUARTZ_LOADED				$on_mod(Loaded)
+#define ON_GD_LOADED					$on_game(Loaded)
+#define ON_GD_EXITING					$on_game(Exiting)
+#define NON_STATIC_FN(CLASS, FN)		[](CLASS* self, auto... args) { return self->CLASS::FN(args...); }
+#define ENABLE_HOOK_PRIORITY(CLASS, FN) quartz::enableHookPriority(self, #CLASS "::" #FN)

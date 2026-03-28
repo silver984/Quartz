@@ -24,17 +24,21 @@ void enableHookPriority(Self& self, const char* hook)
 template <typename Ret, typename Self, typename Original, typename... Args>
 Ret runHookChain(const std::string& hookName, Self* self, Original original, Args... args)
 {
-    auto& hooks = quartz::LuaManager::get().hooks();
+    auto& luaManager = quartz::LuaManager::get();
 
+    if (!luaManager.isOpen())
+    {
+        return std::invoke(original, self, args...);
+    }
+
+    auto& hooks = luaManager.luaHooks();
     auto it = hooks.find(hookName);
-
     if (it == hooks.end())
     {
         return std::invoke(original, self, args...);
     }
 
     auto& vec = it->second;
-
     std::function<Ret(size_t, Self*, Args...)> chain =
         [&chain, &vec, original](size_t index, Self* chainSelf, Args... chainArgs) -> Ret
         {
@@ -80,6 +84,71 @@ Ret runHookChain(const std::string& hookName, Self* self, Original original, Arg
         };
 
     return chain(0, self, args...);
+}
+
+template <typename Ret, typename Original, typename... Args>
+Ret runStaticHookChain(const std::string& hookName, Original original, Args... args)
+{
+    auto& luaManager = quartz::LuaManager::get();
+
+    if (!luaManager.isOpen())
+    {
+        return original(args...);
+    }
+
+    auto& hooks = luaManager.luaHooks();
+    auto it = hooks.find(hookName);
+    if (it == hooks.end())
+    {
+        return original(args...);
+    }
+
+    auto& vec = it->second;
+    std::function<Ret(size_t, Args...)> chain =
+        [&chain, &vec, original](size_t index, Args... chainArgs) -> Ret
+        {
+            if (index >= vec.size())
+            {
+                return original(chainArgs...);
+            }
+
+            sol::protected_function_result result;
+
+            try
+            {
+                std::function<Ret(Args...)> proceed =
+                    [&chain, index](Args... proceedArgs) -> Ret
+                    {
+                        return chain(index + 1, proceedArgs...);
+                    };
+
+                result = vec[index].call(proceed, chainArgs...);
+            }
+            catch (const std::exception& e)
+            {
+                geode::log::error("Lua exception: {}", e.what());
+                return original(chainArgs...);
+            }
+
+            if (!result.valid())
+            {
+                sol::error err = result;
+                geode::log::error("Lua error: {}", err.what());
+                return original(chainArgs...);
+            }
+
+            if constexpr (!std::is_void_v<Ret>)
+            {
+                if (result.return_count() <= 0)
+                {
+                    return original(chainArgs...);
+                }
+
+                return result.get<Ret>();
+            }
+        };
+
+    return chain(0, args...);
 }
 
 } // quartz
