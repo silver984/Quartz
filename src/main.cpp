@@ -1,21 +1,22 @@
-#include <quartz/core/LuaManager.hpp>
-#include <quartz/core/Macros.hpp>
+#include <Geode/loader/GameEvent.hpp>
+#include <Geode/loader/ModEvent.hpp>
 #include <Geode/loader/Log.hpp>
+#include <quartz/core/LuaManager.hpp>
 
-// this C++ file gets executed first
-// so we initialize stuff here
-
-ON_QUARTZ_LOADED
+$on_mod(Loaded)
 {
 	auto& luaManager = quartz::LuaManager::get();
+
 	if (!luaManager.init())
 	{
-		geode::log::error("Failed to initialize LuaManager");
+		geode::log::error("Failed to initialize quartz::LuaManager");
 		return;
 	}
+
+	luaManager.loadScripts();
 }
 
-ON_GD_EXITING
+$on_game(Exiting)
 {
 	quartz::LuaManager::get().cleanup();
 }

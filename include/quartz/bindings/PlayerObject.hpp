@@ -1,30 +1,20 @@
 #pragma once
 
-#include <Geode/modify/PlayerObject.hpp>
-#include <quartz/core/LuaManager.hpp>
-#include <sol/sol.hpp>
-
 namespace quartz
 {
-
-// @lua[usertype] PlayerObject
-struct lua_PlayerObject : public geode::Modify<lua_PlayerObject, PlayerObject>
+namespace bindings
 {
-	static void onModify(auto& self);
 
-	// @lua[static] PlayerObject.create(player, ship, game_layer, layer, play_layer) -> PlayerObject
-	static PlayerObject* create(int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer);
-
-	// @lua[method] PlayerObject:init(player, ship, game_layer, layer, play_layer) -> boolean
-	bool init(int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer);
-	
-	// @lua[method] PlayerObject:update(dt)
-	void update(float dt) override;
-
-	struct Fields
-	{
-		sol::table luaFields;
-	};
+class __PlayerObject
+{
+public:
+	__PlayerObject();
+	~__PlayerObject() = default;
 };
 
+} // bindings
 } // quartz
+
+// static instance that queues this lua binding at startup
+// the binding is executed later after lua is initialized
+static quartz::bindings::__PlayerObject __playerobject__;

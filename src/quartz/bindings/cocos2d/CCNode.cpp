@@ -1,210 +1,150 @@
 #include <quartz/bindings/cocos2d/CCNode.hpp>
-#include <quartz/core/Macros.hpp>
+#include <quartz/hooks/cocos2d/CCNode.hpp>
+#include <quartz/core/LuaManager.hpp>
+#include <Geode/loader/Log.hpp>
 #include <new>
 
-void quartz::lua_CCNode::onModify(auto& self)
+namespace quartz
 {
-    ENABLE_HOOK_PRIORITY(cocos2d::CCNode, _setZOrder);
-    ENABLE_HOOK_PRIORITY(cocos2d::CCNode, create);
-    ENABLE_HOOK_PRIORITY(cocos2d::CCNode, description);
-    ENABLE_HOOK_PRIORITY(cocos2d::CCNode, getVertexZ);
-    ENABLE_HOOK_PRIORITY(cocos2d::CCNode, getZOrder);
-    ENABLE_HOOK_PRIORITY(cocos2d::CCNode, init);
-    ENABLE_HOOK_PRIORITY(cocos2d::CCNode, setScaleX);
-    ENABLE_HOOK_PRIORITY(cocos2d::CCNode, setVertexZ);
-    ENABLE_HOOK_PRIORITY(cocos2d::CCNode, setZOrder);
-}
-
-void quartz::lua_CCNode::_setZOrder(int z)
+namespace bindings
 {
-    quartz::runHookChain<void>(
-        "cocos2d.CCNode:_set_zorder",
-        static_cast<cocos2d::CCNode*>(this),
-        NON_STATIC_FN(cocos2d::CCNode, _setZOrder),
-        z
-    );
-}
-
-cocos2d::CCNode* quartz::lua_CCNode::create()
+namespace __cocos2d
 {
-    return quartz::runStaticHookChain<cocos2d::CCNode*>(
-        "cocos2d.CCNode.create",
-        &CCNode::create
-    );
-}
 
-const char* quartz::lua_CCNode::description()
-{
-    return quartz::runHookChain<const char*>(
-        "cocos2d.CCNode:description",
-        static_cast<cocos2d::CCNode*>(this),
-        NON_STATIC_FN(cocos2d::CCNode, description)
-    );
-}
-
-float quartz::lua_CCNode::getVertexZ()
-{
-    return quartz::runHookChain<float>(
-        "cocos2d.CCNode:get_vertex_z",
-        static_cast<cocos2d::CCNode*>(this),
-        NON_STATIC_FN(cocos2d:: CCNode, getVertexZ)
-    );
-}
-
-int quartz::lua_CCNode::getZOrder()
-{
-    return quartz::runHookChain<int>(
-        "cocos2d.CCNode:get_zorder",
-        static_cast<cocos2d::CCNode*>(this),
-        NON_STATIC_FN(cocos2d::CCNode, getZOrder)
-    );
-}
-
-bool quartz::lua_CCNode::init()
-{
-    return quartz::runHookChain<bool>(
-        "cocos2d.CCNode:init",
-        static_cast<cocos2d::CCNode*>(this),
-        NON_STATIC_FN(cocos2d::CCNode, init)
-    );
-}
-
-void quartz::lua_CCNode::setScaleX(float fScaleX)
-{
-    quartz::runHookChain<void>(
-        "cocos2d.CCNode:set_scale_x",
-        static_cast<cocos2d::CCNode*>(this),
-        NON_STATIC_FN(cocos2d::CCNode, setScaleX),
-        fScaleX
-    );
-}
-
-void quartz::lua_CCNode::setVertexZ(float vertexZ)
-{
-    quartz::runHookChain<void>(
-        "cocos2d.CCNode:set_vertex_z",
-        static_cast<cocos2d::CCNode*>(this),
-        NON_STATIC_FN(cocos2d::CCNode, setVertexZ),
-        vertexZ
-    );
-}
-
-void quartz::lua_CCNode::setZOrder(int zOrder)
-{
-    quartz::runHookChain<void>(
-        "cocos2d.CCNode:set_zorder",
-        static_cast<cocos2d::CCNode*>(this),
-        NON_STATIC_FN(cocos2d::CCNode, setZOrder),
-        zOrder
-    );
-}
-
-ON_QUARTZ_LOADED
+__CCNode::__CCNode()
 {
     auto& luaManager = quartz::LuaManager::get();
-    
-    sol::table cocos2d = luaManager.luaState()["cocos2d"];
-    
-    cocos2d.new_usertype<cocos2d::CCNode>(
-        "CCNode",
-        sol::constructors<cocos2d::CCNode()>(),
-        sol::base_classes, sol::bases<cocos2d::CCObject>()
-    );
-
-    sol::table usertype = cocos2d["CCNode"];
-
-    usertype.set_function(
-        "alloc", []()
+    luaManager.queueBinding(
+        [&luaManager]()
         {
-            cocos2d::CCNode* ptr = new (std::nothrow) cocos2d::CCNode();
-            return ptr;
-        }
-    );
+            auto& state = luaManager.luaState();
 
-    usertype.set_function(
-        "free", [](cocos2d::CCNode* self)
-        {
-            delete self;
-        }
-    );
+            sol::table cocos2d = state["cocos2d"].get_or_create<sol::table>();
 
-    luaManager.addValidHook("cocos2d.CCNode:_set_zorder");
-    usertype.set_function(
-        "_set_zorder", [](cocos2d::CCNode* self, int z)
-        {
-            auto __self = static_cast<quartz::lua_CCNode*>(self);
-            __self->_setZOrder(z);
-        }
-    );
+            cocos2d.new_usertype<cocos2d::CCNode>(
+                "CCNode",
+                sol::constructors<cocos2d::CCNode()>(),
+                sol::base_classes, sol::bases<cocos2d::CCObject>()
+            );
 
-    luaManager.addValidHook("cocos2d.CCNode.create");
-    usertype.set_function(
-        "create", []()
-        {
-            return quartz::lua_CCNode::create();
-        }
-    );
+            sol::table usertype = cocos2d["CCNode"];
 
-    luaManager.addValidHook("cocos2d.CCNode:description");
-    usertype.set_function(
-        "description", [](cocos2d::CCNode* self)
-        {
-            auto __self = static_cast<quartz::lua_CCNode*>(self);
-            return __self->description();
-        }
-    );
+            usertype.set_function(
+                "fields", [](sol::this_state s, cocos2d::CCNode* self)
+                {
+                    auto __self = static_cast<quartz::hooks::__cocos2d::__CCNode*>(self);
+                    auto& luaFields = __self->m_fields->m_luaFields;
 
-    luaManager.addValidHook("cocos2d.CCNode:get_vertex_z");
-    usertype.set_function(
-        "get_vertex_z", [](cocos2d::CCNode* self)
-        {
-            auto __self = static_cast<quartz::lua_CCNode*>(self);
-            return __self->getVertexZ();
-        }
-    );
+                    if (!luaFields.valid())
+                    {
+                        sol::state_view lua(s);
+                        luaFields = lua.create_table();
+                    }
 
-    luaManager.addValidHook("cocos2d.CCNode:get_zorder");
-    usertype.set_function(
-        "get_zorder", [](cocos2d::CCNode* self)
-        {
-            auto __self = static_cast<quartz::lua_CCNode*>(self);
-            return __self->getZOrder();
-        }
-    );
+                    return luaFields;
+                }
+            );
 
-    luaManager.addValidHook("cocos2d.CCNode:init");
-    usertype.set_function(
-        "init", [](cocos2d::CCNode* self)
-        {
-            auto __self = static_cast<quartz::lua_CCNode*>(self);
-            return __self->init();
-        }
-    );
+            usertype.set_function(
+                "alloc", []()
+                {
+                    cocos2d::CCNode* ptr = new (std::nothrow) cocos2d::CCNode();
+                    return ptr;
+                }
+            );
 
-    luaManager.addValidHook("cocos2d.CCNode:set_scale_x");
-    usertype.set_function(
-        "set_scale_x", [](cocos2d::CCNode* self, float fScaleX)
-        {
-            auto __self = static_cast<quartz::lua_CCNode*>(self);
-            __self->setScaleX(fScaleX);
-        }
-    );
+            usertype.set_function(
+                "free", [](cocos2d::CCNode* self)
+                {
+                    delete self;
+                }
+            );
 
-    luaManager.addValidHook("cocos2d.CCNode:set_vertex_z");
-    usertype.set_function(
-        "set_vertex_z", [](cocos2d::CCNode* self, float vertexZ)
-        {
-            auto __self = static_cast<quartz::lua_CCNode*>(self);
-            __self->setVertexZ(vertexZ);
-        }
-    );
+            luaManager.addValidHook("cocos2d.CCNode:_set_zorder");
+            usertype.set_function(
+                "_set_zorder", [](cocos2d::CCNode* self, int z)
+                {
+                    auto __self = static_cast<quartz::hooks::__cocos2d::__CCNode*>(self);
+                    __self->_setZOrder(z);
+                }
+            );
 
-    luaManager.addValidHook("cocos2d.CCNode:set_zorder");
-    usertype.set_function(
-        "set_zorder", [](cocos2d::CCNode* self, int zOrder)
-        {
-            auto __self = static_cast<quartz::lua_CCNode*>(self);
-            __self->setZOrder(zOrder);
-        }
+            luaManager.addValidHook("cocos2d.CCNode.create");
+            usertype.set_function(
+                "create", []()
+                {
+                    return quartz::hooks::__cocos2d::__CCNode::create();
+                }
+            );
+
+            luaManager.addValidHook("cocos2d.CCNode:description");
+            usertype.set_function(
+                "description", [](cocos2d::CCNode* self)
+                {
+                    auto __self = static_cast<quartz::hooks::__cocos2d::__CCNode*>(self);
+                    return __self->description();
+                }
+            );
+
+            luaManager.addValidHook("cocos2d.CCNode:get_vertex_z");
+            usertype.set_function(
+                "get_vertex_z", [](cocos2d::CCNode* self)
+                {
+                    auto __self = static_cast<quartz::hooks::__cocos2d::__CCNode*>(self);
+                    return __self->getVertexZ();
+                }
+            );
+
+            luaManager.addValidHook("cocos2d.CCNode:get_zorder");
+            usertype.set_function(
+                "get_zorder", [](cocos2d::CCNode* self)
+                {
+                    auto __self = static_cast<quartz::hooks::__cocos2d::__CCNode*>(self);
+                    return __self->getZOrder();
+                }
+            );
+
+            luaManager.addValidHook("cocos2d.CCNode:init");
+            usertype.set_function(
+                "init", [](cocos2d::CCNode* self)
+                {
+                    auto __self = static_cast<quartz::hooks::__cocos2d::__CCNode*>(self);
+                    return __self->init();
+                }
+            );
+
+            luaManager.addValidHook("cocos2d.CCNode:set_scale_x");
+            usertype.set_function(
+                "set_scale_x", [](cocos2d::CCNode* self, float fScaleX)
+                {
+                    auto __self = static_cast<quartz::hooks::__cocos2d::__CCNode*>(self);
+                    __self->setScaleX(fScaleX);
+                }
+            );
+
+            luaManager.addValidHook("cocos2d.CCNode:set_vertex_z");
+            usertype.set_function(
+                "set_vertex_z", [](cocos2d::CCNode* self, float vertexZ)
+                {
+                    auto __self = static_cast<quartz::hooks::__cocos2d::__CCNode*>(self);
+                    __self->setVertexZ(vertexZ);
+                }
+            );
+
+            luaManager.addValidHook("cocos2d.CCNode:set_zorder");
+            usertype.set_function(
+                "set_zorder", [](cocos2d::CCNode* self, int zOrder)
+                {
+                    auto __self = static_cast<quartz::hooks::__cocos2d::__CCNode*>(self);
+                    __self->setZOrder(zOrder);
+                }
+            );
+
+            geode::log::debug("Successfully bound cocos2d::CCNode to Lua");
+        }  
     );
 }
+
+} // __cocos2d
+} // bindings
+} // quartz

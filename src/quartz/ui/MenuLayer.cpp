@@ -1,13 +1,16 @@
-#include <quartz/ui/QuartzMenuLayer.hpp>
-#include <Geode/cocos/cocoa/CCGeometry.h>
+#include <quartz/ui/MenuLayer.hpp>
 #include <quartz/core/LuaManager.hpp>
+#include <Geode/cocos/cocoa/CCGeometry.h>
 #include <Geode/ui/Notification.hpp>
 #include <string>
+#include <cstdint>
 
 namespace quartz
 {
+namespace ui
+{
 
-bool QuartzMenuLayer::init()
+bool __MenuLayer::init()
 {
 	if (!MenuLayer::init())
 	{
@@ -25,7 +28,7 @@ bool QuartzMenuLayer::init()
 			m_fields->m_quartzBtnBg->addChild(m_fields->m_goldQuartz);
 		}
 
-		m_fields->m_quartzBtn = CCMenuItemSpriteExtra::create(m_fields->m_quartzBtnBg, this, (cocos2d::SEL_MenuHandler)(&QuartzMenuLayer::onQuartz));
+		m_fields->m_quartzBtn = CCMenuItemSpriteExtra::create(m_fields->m_quartzBtnBg, this, (cocos2d::SEL_MenuHandler)(&__MenuLayer::onQuartz));
 
 		if (m_fields->m_quartzBtn)
 		{
@@ -44,7 +47,7 @@ bool QuartzMenuLayer::init()
 	return true;
 }
 
-void QuartzMenuLayer::onQuartz(cocos2d::CCObject* sender)
+void __MenuLayer::onQuartz(cocos2d::CCObject* sender)
 {
 	auto& luaManager = quartz::LuaManager::get();
 
@@ -69,4 +72,5 @@ void QuartzMenuLayer::onQuartz(cocos2d::CCObject* sender)
 	geode::Notification::create(statusLog, statusIcon, 3.f)->show();
 }
 
+} // ui
 } // quartz

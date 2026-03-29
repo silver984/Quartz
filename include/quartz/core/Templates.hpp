@@ -1,9 +1,7 @@
 #pragma once
-
 #include <Geode/modify/Modify.hpp>
 #include <Geode/loader/Log.hpp>
 #include <quartz/core/LuaManager.hpp>
-#include <sol/sol.hpp>
 #include <exception>
 #include <functional>
 #include <cstdint>

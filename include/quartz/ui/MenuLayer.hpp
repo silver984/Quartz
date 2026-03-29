@@ -1,12 +1,13 @@
 #pragma once
-
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/cocos/sprite_nodes/CCSprite.h>
 
 namespace quartz
 {
+namespace ui
+{
 
-struct QuartzMenuLayer : geode::Modify<QuartzMenuLayer, MenuLayer>
+struct __MenuLayer : geode::Modify<__MenuLayer, MenuLayer>
 {
 	bool init() override;
 	void onQuartz(cocos2d::CCObject* sender);
@@ -19,4 +20,5 @@ struct QuartzMenuLayer : geode::Modify<QuartzMenuLayer, MenuLayer>
 	};
 };
 
+} // ui
 } // quartz

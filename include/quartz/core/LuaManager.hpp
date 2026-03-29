@@ -1,12 +1,10 @@
 #pragma once
-
 #include <sol/sol.hpp>
 #include <filesystem>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
 #include <chrono>
-#include <cstdint>
 #include <string>
 #include <functional>
 
@@ -55,6 +53,11 @@ public:
 		m_validHooks.insert(hookName);
 	}
 
+	inline void queueBinding(std::function<void()>&& exec)
+	{
+		m_queuedBindings.push_back(std::move(exec));
+	}
+
 	constexpr bool isOpen() const
 	{
 		return m_isInit;
@@ -65,6 +68,7 @@ private:
 	bool createScriptsDir();
 	void createGlobals();
 	void endTimer(const std::chrono::steady_clock::time_point& start);
+	void runQueuedBindings();
 	std::vector<std::filesystem::path> collectScripts();
 	void runScripts(std::vector<std::filesystem::path>& scripts);
 
@@ -81,6 +85,7 @@ private:
 	std::vector<sol::environment> m_environments;
 	std::unordered_map<std::string, std::vector<sol::protected_function>> m_luaHooks;
 	std::unordered_set<std::string> m_validHooks;
+	std::vector<std::function<void()>> m_queuedBindings;
 };
 
 } // quartz

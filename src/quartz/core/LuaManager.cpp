@@ -5,10 +5,7 @@
 #include <exception>
 #include <fmt/args.h>
 
-namespace quartz
-{
-
-bool LuaManager::init()
+bool quartz::LuaManager::init()
 {
 	if (m_isInit)
 	{
@@ -21,12 +18,13 @@ bool LuaManager::init()
 	}
 
 	createGlobals();
+	runQueuedBindings();
 
 	m_isInit = true;
 	return true;
 }
 
-void LuaManager::cleanup()
+void quartz::LuaManager::cleanup()
 {
 	if (!m_isInit)
 	{
@@ -50,7 +48,7 @@ void LuaManager::cleanup()
 	m_isInit = false;
 }
 
-bool LuaManager::loadScripts()
+bool quartz::LuaManager::loadScripts()
 {
 	if (!m_isInit || !initLibs())
 	{
@@ -69,7 +67,7 @@ bool LuaManager::loadScripts()
 }
 
 // private
-bool LuaManager::initLibs()
+bool quartz::LuaManager::initLibs()
 {
 	if (m_initLibs)
 	{
@@ -84,7 +82,7 @@ bool LuaManager::initLibs()
 }
 
 // private
-bool LuaManager::createScriptsDir()
+bool quartz::LuaManager::createScriptsDir()
 {
 	m_scriptsDir = geode::Mod::get()->getSettingValue<std::filesystem::path>("scripts-dir");
 
@@ -106,15 +104,9 @@ bool LuaManager::createScriptsDir()
 }
 
 // private
-void LuaManager::createGlobals()
+void quartz::LuaManager::createGlobals()
 {
-	m_luaState["quartz"] = m_luaState.create_table();
-	m_luaState["geode"] = m_luaState.create_table();
-	m_luaState["fmt"] = m_luaState.create_table();
-	m_luaState["cocos2d"] = m_luaState.create_table();
-	m_luaState["geode"]["log"] = m_luaState.create_table();
-
-	sol::table quartz = m_luaState["quartz"];
+	sol::table quartz = m_luaState["quartz"].get_or_create<sol::table>();
 	quartz.set_function(
 		"hook", [this](const std::string& name, sol::protected_function&& callback)
 		{
@@ -128,7 +120,7 @@ void LuaManager::createGlobals()
 		}
 	);
 
-	sol::table fmt = m_luaState["fmt"];
+	sol::table fmt = m_luaState["fmt"].get_or_create<sol::table>();
 	fmt.set_function(
 		"format", [](const std::string& fmtStr, sol::variadic_args va)
 		{
@@ -160,7 +152,8 @@ void LuaManager::createGlobals()
 		}
 	);
 
-	sol::table log = m_luaState["geode"]["log"];
+	sol::table geode = m_luaState["geode"].get_or_create<sol::table>();
+	sol::table log = geode["log"].get_or_create<sol::table>();
 
 #define CREATE_LUA_LOG_FN(LEVEL)															\
 	log.set_function(																		\
@@ -194,7 +187,7 @@ void LuaManager::createGlobals()
 }
 
 // private
-void LuaManager::endTimer(const std::chrono::steady_clock::time_point& start)
+void quartz::LuaManager::endTimer(const std::chrono::steady_clock::time_point& start)
 {
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
@@ -202,7 +195,18 @@ void LuaManager::endTimer(const std::chrono::steady_clock::time_point& start)
 }
 
 // private
-std::vector<std::filesystem::path> LuaManager::collectScripts()
+void quartz::LuaManager::runQueuedBindings()
+{
+	for (const auto& f : m_queuedBindings)
+	{
+		f();
+	}
+
+	m_queuedBindings.clear();
+}
+
+// private
+std::vector<std::filesystem::path> quartz::LuaManager::collectScripts()
 {
 	geode::log::debug("Attempting to gather scripts...");
 
@@ -236,7 +240,7 @@ std::vector<std::filesystem::path> LuaManager::collectScripts()
 }
 
 // private
-void LuaManager::runScripts(std::vector<std::filesystem::path>& scripts)
+void quartz::LuaManager::runScripts(std::vector<std::filesystem::path>& scripts)
 {
 	geode::log::debug("Attempting to run {}...",
 					  (scripts.size() > 1) ? "scripts" : "script");
@@ -291,5 +295,3 @@ void LuaManager::runScripts(std::vector<std::filesystem::path>& scripts)
 
 	endTimer(start);
 }
-
-} // quartz
