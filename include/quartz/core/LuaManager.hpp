@@ -8,18 +8,15 @@
 #include <string>
 #include <functional>
 
-namespace quartz
-{
+namespace quartz {
 
-class LuaManager
-{
+class LuaManager {
 private:
 	LuaManager() = default;
 	~LuaManager() = default;
 
 public:
-	static inline LuaManager& get()
-	{
+	static inline LuaManager& get() {
 		static LuaManager instance;
 		return instance;
 	}
@@ -33,33 +30,27 @@ public:
 	void cleanup();
 	bool loadScripts();
 
-	inline sol::state& luaState()
-	{
+	inline sol::state& luaState() {
 		return m_luaState;
 	}
 
-	inline std::vector<sol::environment>& environments()
-	{
+	inline std::vector<sol::environment>& environments() {
 		return m_environments;
 	}
 
-	inline std::unordered_map<std::string, std::vector<sol::protected_function>>& luaHooks()
-	{
+	inline std::unordered_map<std::string, std::vector<sol::protected_function>>& luaHooks() {
 		return m_luaHooks;
 	}
 
-	inline void addValidHook(const std::string& hookName)
-	{
+	inline void addValidHook(const std::string& hookName) {
 		m_validHooks.insert(hookName);
 	}
 
-	inline void queueBinding(std::function<void()>&& exec)
-	{
+	inline void queueBinding(std::function<void()>&& exec) {
 		m_queuedBindings.push_back(std::move(exec));
 	}
 
-	constexpr bool isOpen() const
-	{
+	constexpr bool isOpen() const {
 		return m_isInit;
 	}
 
@@ -72,8 +63,7 @@ private:
 	std::vector<std::filesystem::path> collectScripts();
 	void runScripts(std::vector<std::filesystem::path>& scripts);
 
-	inline std::chrono::steady_clock::time_point startTimer()
-	{
+	inline std::chrono::steady_clock::time_point startTimer() {
 		return std::chrono::high_resolution_clock::now();
 	}
 
@@ -88,4 +78,4 @@ private:
 	std::vector<std::function<void()>> m_queuedBindings;
 };
 
-} // quartz
+} // namespace quartz

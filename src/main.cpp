@@ -3,12 +3,10 @@
 #include <Geode/loader/Log.hpp>
 #include <quartz/core/LuaManager.hpp>
 
-$on_mod(Loaded)
-{
+$on_mod(Loaded) {
 	auto& luaManager = quartz::LuaManager::get();
 
-	if (!luaManager.init())
-	{
+	if (!luaManager.init()) {
 		geode::log::error("Failed to initialize quartz::LuaManager");
 		return;
 	}
@@ -16,7 +14,6 @@ $on_mod(Loaded)
 	luaManager.loadScripts();
 }
 
-$on_game(Exiting)
-{
+$on_game(Exiting) {
 	quartz::LuaManager::get().cleanup();
 }

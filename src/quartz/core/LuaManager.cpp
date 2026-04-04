@@ -5,15 +5,14 @@
 #include <exception>
 #include <fmt/args.h>
 
-bool quartz::LuaManager::init()
-{
-	if (m_isInit)
-	{
+namespace quartz {
+
+bool LuaManager::init() {
+	if (m_isInit) {
 		return true;
 	}
 
-	if (!createScriptsDir())
-	{
+	if (!createScriptsDir()) {
 		return false;
 	}
 
@@ -24,17 +23,14 @@ bool quartz::LuaManager::init()
 	return true;
 }
 
-void quartz::LuaManager::cleanup()
-{
-	if (!m_isInit)
-	{
+void LuaManager::cleanup() {
+	if (!m_isInit) {
 		return;
 	}
 
 	m_environments.clear();
 
-	for (auto& hook : m_luaHooks)
-	{
+	for (auto& hook : m_luaHooks) {
 		hook.second.clear();
 	}
 
@@ -48,17 +44,14 @@ void quartz::LuaManager::cleanup()
 	m_isInit = false;
 }
 
-bool quartz::LuaManager::loadScripts()
-{
-	if (!m_isInit || !initLibs())
-	{
+bool LuaManager::loadScripts() {
+	if (!m_isInit || !initLibs()) {
 		return false;
 	}
 
 	std::vector<std::filesystem::path> scripts = collectScripts();
 
-	if (scripts.empty())
-	{
+	if (scripts.empty()) {
 		return false;
 	}
 
@@ -67,10 +60,8 @@ bool quartz::LuaManager::loadScripts()
 }
 
 // private
-bool quartz::LuaManager::initLibs()
-{
-	if (m_initLibs)
-	{
+bool LuaManager::initLibs() {
+	if (m_initLibs) {
 		return true;
 	}
 
@@ -82,19 +73,14 @@ bool quartz::LuaManager::initLibs()
 }
 
 // private
-bool quartz::LuaManager::createScriptsDir()
-{
+bool LuaManager::createScriptsDir() {
 	m_scriptsDir = geode::Mod::get()->getSettingValue<std::filesystem::path>("scripts-dir");
 
-	if (!std::filesystem::exists(m_scriptsDir))
-	{
-		try
-		{
+	if (!std::filesystem::exists(m_scriptsDir)) {
+		try {
 			std::filesystem::create_directories(m_scriptsDir);
 			geode::log::debug("Created missing scripts directory | location: \"{}\"", m_scriptsDir);
-		}
-		catch (const std::exception& e)
-		{
+		} catch (const std::exception& e) {
 			geode::log::error("Failed to create missing scripts directory | what: {}", e.what());
 			return false;
 		}
@@ -104,15 +90,12 @@ bool quartz::LuaManager::createScriptsDir()
 }
 
 // private
-void quartz::LuaManager::createGlobals()
-{
+void LuaManager::createGlobals() {
 	sol::table quartz = m_luaState["quartz"].get_or_create<sol::table>();
 	quartz.set_function(
-		"hook", [this](const std::string& name, sol::protected_function&& callback)
-		{
-			if (!m_validHooks.contains(name))
-			{
-				geode::log::warn("A lua script attempted to insert an invalid hook: {}", name);
+		"hook", [this](const std::string& name, sol::protected_function&& callback) {
+			if (!m_validHooks.contains(name)) {
+				geode::log::warn("\"{}\" is not a hookable function", name);
 				return;
 			}
 
@@ -122,16 +105,13 @@ void quartz::LuaManager::createGlobals()
 
 	sol::table fmt = m_luaState["fmt"].get_or_create<sol::table>();
 	fmt.set_function(
-		"format", [](const std::string& fmtStr, sol::variadic_args va)
-		{
+		"format", [](const std::string& fmtStr, sol::variadic_args va) {
 			fmt::dynamic_format_arg_store<fmt::format_context> store;
 
-			for (auto v : va)
-			{
+			for (auto v : va) {
 
 #define CHECK_ARG(TYPE)					\
-	if (v.is<TYPE>())					\
-	{									\
+	if (v.is<TYPE>()) {					\
 		store.push_back(v.get<TYPE>());	\
 		continue;						\
 	}
@@ -144,7 +124,7 @@ void quartz::LuaManager::createGlobals()
 				CHECK_ARG(bool);
 
 #undef CHECK_ARG
-				
+
 				store.push_back("<unsupported>");
 			}
 
@@ -187,18 +167,15 @@ void quartz::LuaManager::createGlobals()
 }
 
 // private
-void quartz::LuaManager::endTimer(const std::chrono::steady_clock::time_point& start)
-{
+void LuaManager::endTimer(const std::chrono::steady_clock::time_point& start) {
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
 	geode::log::debug("Took {}s", elapsed.count());
 }
 
 // private
-void quartz::LuaManager::runQueuedBindings()
-{
-	for (const auto& f : m_queuedBindings)
-	{
+void LuaManager::runQueuedBindings() {
+	for (const auto& f : m_queuedBindings) {
 		f();
 	}
 
@@ -206,32 +183,27 @@ void quartz::LuaManager::runQueuedBindings()
 }
 
 // private
-std::vector<std::filesystem::path> quartz::LuaManager::collectScripts()
-{
+std::vector<std::filesystem::path> LuaManager::collectScripts() {
 	geode::log::debug("Attempting to gather scripts...");
 
 	std::vector<std::filesystem::path> scripts;
 
-	try
-	{
+	try {
 		auto start = startTimer();
 
-		for (const auto& entry : std::filesystem::directory_iterator(m_scriptsDir))
-		{
-			if (entry.path().extension() == ".lua")
-			{
+		for (const auto& entry : std::filesystem::directory_iterator(m_scriptsDir)) {
+			if (entry.path().extension() == ".lua") {
 				scripts.push_back(entry.path());
 				geode::log::debug("Added script \"{}\" | current total: {}",
-								  entry.path().filename().string(), scripts.size());
+					entry.path().filename().string(),
+					scripts.size());
 			}
 		}
 
 		endTimer(start);
-	}
-	catch (const std::filesystem::filesystem_error& error)
-	{
+	} catch (const std::filesystem::filesystem_error& error) {
 		geode::log::error("Failed to add scripts due to filesystem error | what: {}",
-						  error.what());
+			error.what());
 
 		return {};
 	}
@@ -240,15 +212,15 @@ std::vector<std::filesystem::path> quartz::LuaManager::collectScripts()
 }
 
 // private
-void quartz::LuaManager::runScripts(std::vector<std::filesystem::path>& scripts)
-{
+void LuaManager::runScripts(std::vector<std::filesystem::path>& scripts) {
 	geode::log::debug("Attempting to run {}...",
-					  (scripts.size() > 1) ? "scripts" : "script");
+		(scripts.size() > 1)
+		? "scripts"
+		: "script");
 
 	m_environments.clear();
 
-	for (auto& hook : m_luaHooks)
-	{
+	for (auto& hook : m_luaHooks) {
 		hook.second.clear();
 	}
 
@@ -256,32 +228,27 @@ void quartz::LuaManager::runScripts(std::vector<std::filesystem::path>& scripts)
 
 	auto start = startTimer();
 
-	for (auto it = scripts.begin(); it != scripts.end();)
-	{
+	for (auto it = scripts.begin(); it != scripts.end();) {
 		sol::environment env;
 		sol::protected_function_result result;
 
-		try
-		{
+		try {
 			env = sol::environment(m_luaState, sol::create, m_luaState.globals());
 			result = m_luaState.script_file((*it).string(), env, sol::load_mode::any);
-		}
-		catch (const std::exception& exception)
-		{
+		} catch (const std::exception& exception) {
 			geode::log::error("Script \"{}\" caused an exception | what: {}",
-							  (*it).filename().string(), exception.what());
+				(*it).filename().string(), exception.what());
 
 			it = scripts.erase(it);
 
 			continue;
 		}
 
-		if (!result.valid())
-		{
+		if (!result.valid()) {
 			sol::error err = result;
 
 			geode::log::error("Script \"{}\" invalid | what: {}",
-							  (*it).filename().string(), err.what());
+				(*it).filename().string(), err.what());
 
 			it = scripts.erase(it);
 
@@ -295,3 +262,5 @@ void quartz::LuaManager::runScripts(std::vector<std::filesystem::path>& scripts)
 
 	endTimer(start);
 }
+
+} // namespace quartz

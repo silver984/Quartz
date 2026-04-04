@@ -2,23 +2,17 @@
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/cocos/sprite_nodes/CCSprite.h>
 
-namespace quartz
-{
-namespace ui
-{
+namespace quartz::ui {
 
-struct __MenuLayer : geode::Modify<__MenuLayer, MenuLayer>
-{
+struct QuartzMenuLayer : geode::Modify<QuartzMenuLayer, MenuLayer> {
 	bool init() override;
 	void onQuartz(cocos2d::CCObject* sender);
 
-	struct Fields
-	{
+	struct Fields {
 		cocos2d::CCSprite* m_quartzBtnBg = nullptr;
 		cocos2d::CCSprite* m_goldQuartz = nullptr;
 		CCMenuItemSpriteExtra* m_quartzBtn = nullptr;
 	};
 };
 
-} // ui
-} // quartz
+} // namespace quartz::ui

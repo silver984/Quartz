@@ -1,15 +1,12 @@
 #pragma once
 #include <sol/sol.hpp>
 
-namespace quartz
-{
+namespace quartz {
 
-struct LuaFields
-{
-	struct Fields
-	{
+struct LuaFields {
+	struct Fields {
 		sol::table m_luaFields;
 	};
 };
 
-} // quartz
+} // namespace quartz
