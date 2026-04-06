@@ -1,5 +1,6 @@
 #include <Geode/loader/GameEvent.hpp>
 #include <Geode/loader/ModEvent.hpp>
+#include <Geode/loader/Mod.hpp>
 #include <Geode/loader/Log.hpp>
 #include <quartz/core/LuaManager.hpp>
 
@@ -11,7 +12,7 @@ $on_mod(Loaded) {
 		return;
 	}
 
-	luaManager.loadScripts();
+	(void)luaManager.loadScripts();
 }
 
 $on_game(Exiting) {

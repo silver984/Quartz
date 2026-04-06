@@ -15,10 +15,11 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 project(Quartz VERSION 1.0.0)
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
+target_precompile_headers(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/quartz/pch.hpp")
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 if (NOT DEFINED ENV{GEODE_SDK})
@@ -46,7 +47,7 @@ FetchContent_Declare(sol2 GIT_REPOSITORY https://github.com/ThePhD/sol2.git GIT_
 FetchContent_MakeAvailable(sol2)
 
 # Geode
-add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
+add_subdirectory($ENV{GEODE_SDK} "${CMAKE_CURRENT_BINARY_DIR}/geode")
 setup_geode_mod(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} lua sol2::sol2)

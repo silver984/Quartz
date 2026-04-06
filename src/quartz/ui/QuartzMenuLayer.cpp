@@ -1,7 +1,8 @@
-#include <quartz/ui/MenuLayer.hpp>
+#include <quartz/ui/QuartzMenuLayer.hpp>
 #include <quartz/core/LuaManager.hpp>
 #include <Geode/cocos/cocoa/CCGeometry.h>
 #include <Geode/ui/Notification.hpp>
+#include <Geode/loader/Log.hpp>
 #include <string>
 #include <cstdint>
 
