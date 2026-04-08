@@ -1,11 +1,12 @@
 #include <quartz/modified/PlayerObject.hpp>
-#include <quartz/pch.hpp>
+#include <pch.hpp>
 
 namespace quartz::modified {
 
 void PlayerObject::onModify(geode::modifier::ModifyBase<geode::modifier::ModifyDerive<PlayerObject, ::PlayerObject>>& self) {
-	for (const auto& [name, hook] : self.m_hooks) {
-		hook->setPriority(geode::Priority::Last);
+	for (const auto& [_, hook] : self.m_hooks) {
+		hook->disable();
+		HookStorage::get().storeGeodeHook(hook);
 	}
 }
 
@@ -13,7 +14,8 @@ void PlayerObject::onModify(geode::modifier::ModifyBase<geode::modifier::ModifyD
 	return quartz::runStaticHookChain<::PlayerObject*>(
 		"PlayerObject.create",
 		&::PlayerObject::create,
-		player, ship, gameLayer, layer, playLayer);
+		player, ship, gameLayer, layer, playLayer
+	);
 }
 
 } // namespace quartz::modified

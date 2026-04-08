@@ -1,10 +1,10 @@
 #include <quartz/ui/QuartzMenuLayer.hpp>
-#include <quartz/core/LuaManager.hpp>
+#include <quartz/LuaManager.hpp>
 #include <Geode/cocos/cocoa/CCGeometry.h>
 #include <Geode/ui/Notification.hpp>
 #include <Geode/loader/Log.hpp>
 #include <string>
-#include <cstdint>
+#include <cstddef>
 
 namespace quartz::ui {
 
@@ -50,7 +50,8 @@ void QuartzMenuLayer::onQuartz(cocos2d::CCObject* sender) {
 			scriptCount,
 			(scriptCount > 1)
 			? "scripts"
-			: "script");
+			: "script"
+		);
 		statusIcon = geode::NotificationIcon::Success;
 	} else {
 		statusLog = "No valid scripts";

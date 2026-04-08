@@ -2,17 +2,17 @@
 #include <Geode/loader/ModEvent.hpp>
 #include <Geode/loader/Mod.hpp>
 #include <Geode/loader/Log.hpp>
-#include <quartz/core/LuaManager.hpp>
+#include <quartz/LuaManager.hpp>
 
 $on_mod(Loaded) {
 	auto& luaManager = quartz::LuaManager::get();
 
 	if (!luaManager.init()) {
-		geode::log::error("Failed to initialize quartz::LuaManager");
+		geode::log::error("Failed to initialize Lua");
 		return;
 	}
 
-	(void)luaManager.loadScripts();
+	static_cast<void>(luaManager.loadScripts());
 }
 
 $on_game(Exiting) {
