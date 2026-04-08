@@ -1,8 +1,11 @@
 #include <quartz/ui/QuartzMenuLayer.hpp>
 #include <quartz/LuaManager.hpp>
+#include <quartz/ui/ModsLayer.hpp>
 #include <Geode/cocos/cocoa/CCGeometry.h>
 #include <Geode/ui/Notification.hpp>
 #include <Geode/loader/Log.hpp>
+#include <Geode/cocos/CCDirector.h>
+#include <Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h>
 #include <string>
 #include <cstddef>
 
@@ -38,6 +41,7 @@ bool QuartzMenuLayer::init() {
 }
 
 void QuartzMenuLayer::onQuartz(cocos2d::CCObject* sender) {
+	/*
 	auto& luaManager = quartz::LuaManager::get();
 	luaManager.loadScripts();
 
@@ -59,6 +63,14 @@ void QuartzMenuLayer::onQuartz(cocos2d::CCObject* sender) {
 	}
 
 	geode::Notification::create(statusLog, statusIcon, 3.f)->show();
+	*/
+
+	cocos2d::CCDirector::sharedDirector()->replaceScene(
+		cocos2d::CCTransitionFade::create(
+			0.5f,
+			ModsLayer::scene()
+		)
+	);
 }
 
 } // namespace quartz::ui

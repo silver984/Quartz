@@ -5,6 +5,7 @@
 #include <vector>
 #include <string_view>
 #include <memory>
+#include <cstdint>
 
 namespace quartz {
 
@@ -22,6 +23,7 @@ public:
 	void storeGeodeHook(std::shared_ptr<geode::Hook> hook);
 	void resetState();
 	void autoEnableGeodeHooks();
+	void setGeodeHooksPriority(int32_t priority);
 
 private:	
 	HookStorage() = default;

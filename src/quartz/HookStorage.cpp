@@ -67,4 +67,12 @@ void HookStorage::autoEnableGeodeHooks() {
 	}
 }
 
+void HookStorage::setGeodeHooksPriority(int32_t priority) {
+	for (auto& [_, hook] : m_hooks) {
+		if (auto geodeHook = hook.geodeHook.lock()) {
+			geodeHook->setPriority(priority);
+		}
+	}
+}
+
 } // namespace quartz
