@@ -49,6 +49,27 @@ bool LuaManager::loadScripts() {
 	return true;
 }
 
+void LuaManager::cleanup() {
+	if (!m_isInitialized) {
+		return;
+	}
+
+	HookStorage::get().resetState();
+	m_environments.clear();
+	m_luaState.collect_garbage();
+	m_luaState = sol::state();
+	m_isLibsInitialized = false;
+	m_isInitialized = false;
+}
+
+sol::state_view LuaManager::luaState() {
+	return m_luaState;
+}
+
+std::vector<sol::environment>& LuaManager::environments() {
+	return m_environments;
+}
+
 // private
 void LuaManager::tryOpenLibs() {
 	if (m_isLibsInitialized) {
@@ -106,6 +127,7 @@ std::vector<std::filesystem::path> LuaManager::collectScripts() {
 	return scripts;
 }
 
+// private
 void LuaManager::runScripts(std::vector<std::filesystem::path>& scripts) {
 	geode::log::debug("Attempting to run {}...", (scripts.size() > 1) ? "scripts" : "script");
 	m_environments.clear();
@@ -149,27 +171,6 @@ void LuaManager::runScripts(std::vector<std::filesystem::path>& scripts) {
 	hookStorage.autoEnableGeodeHooks();
 
 	geode::log::debug("Took {}s", endTimer(timer));
-}
-
-void LuaManager::cleanup() {
-	if (!m_isInitialized) {
-		return;
-	}
-
-	HookStorage::get().resetState();
-	m_environments.clear();
-	m_luaState.collect_garbage();
-	m_luaState = sol::state();
-	m_isLibsInitialized = false;
-	m_isInitialized = false;
-}
-
-sol::state_view LuaManager::luaState() {
-	return m_luaState;
-}
-
-std::vector<sol::environment>& LuaManager::environments() {
-	return m_environments;
 }
 
 } // namespace quartz

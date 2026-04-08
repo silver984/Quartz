@@ -1,4 +1,4 @@
-#include <quartz/core/timer.hpp>
+#include <quartz/core/Timer.hpp>
 
 namespace quartz {
 

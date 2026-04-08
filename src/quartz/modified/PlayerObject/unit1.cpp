@@ -5,7 +5,6 @@ namespace quartz::modified {
 
 void PlayerObject::onModify(geode::modifier::ModifyBase<geode::modifier::ModifyDerive<PlayerObject, ::PlayerObject>>& self) {
 	for (const auto& [_, hook] : self.m_hooks) {
-		hook->disable();
 		HookStorage::get().storeGeodeHook(hook);
 	}
 }

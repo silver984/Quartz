@@ -49,7 +49,7 @@ void HookStorage::resetState() {
 		hook.luaCallbacks.clear();
 
 		if (auto geodeHook = hook.geodeHook.lock()) {
-			geodeHook->disable();
+			DISCARD(geodeHook->disable());
 		}
 	}
 }
