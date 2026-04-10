@@ -6,7 +6,7 @@ namespace quartz::ui {
 
 struct QuartzMenuLayer : geode::Modify<QuartzMenuLayer, MenuLayer> {
 	bool init() override;
-	void onQuartz(cocos2d::CCObject* sender);
+	void onQuartz(cocos2d::CCObject*);
 
 	struct Fields {
 		cocos2d::CCSprite* m_quartzBtnBg = nullptr;

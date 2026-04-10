@@ -25,7 +25,11 @@ bool QuartzMenuLayer::init() {
 			m_fields->m_quartzBtnBg->addChild(m_fields->m_goldQuartz);
 		}
 
-		m_fields->m_quartzBtn = CCMenuItemSpriteExtra::create(m_fields->m_quartzBtnBg, this, (cocos2d::SEL_MenuHandler)(&QuartzMenuLayer::onQuartz));
+		m_fields->m_quartzBtn = CCMenuItemSpriteExtra::create(
+			m_fields->m_quartzBtnBg, this,
+			menu_selector(QuartzMenuLayer::onQuartz)
+		);
+
 		if (m_fields->m_quartzBtn) {
 			m_fields->m_quartzBtn->setID("quartz-button"_spr);
 		}
@@ -40,7 +44,7 @@ bool QuartzMenuLayer::init() {
 	return true;
 }
 
-void QuartzMenuLayer::onQuartz(cocos2d::CCObject* sender) {
+void QuartzMenuLayer::onQuartz(cocos2d::CCObject*) {
 	/*
 	auto& luaManager = quartz::LuaManager::get();
 	luaManager.loadScripts();
