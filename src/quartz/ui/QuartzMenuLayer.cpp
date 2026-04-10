@@ -6,6 +6,7 @@
 #include <Geode/loader/Log.hpp>
 #include <Geode/cocos/CCDirector.h>
 #include <Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h>
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
 #include <string>
 #include <cstddef>
 

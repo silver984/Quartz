@@ -1,6 +1,5 @@
 #pragma once
 #include <Geode/modify/MenuLayer.hpp>
-#include <Geode/cocos/sprite_nodes/CCSprite.h>
 
 namespace quartz::ui {
 
