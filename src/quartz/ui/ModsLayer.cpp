@@ -3,6 +3,7 @@
 #include <Geode/binding/MenuLayer.hpp>
 #include <Geode/loader/Log.hpp>
 #include <Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h>
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
 #include <cstddef>
 
 namespace quartz {
@@ -21,13 +22,13 @@ bool ModsLayer::init() {
 
     this->setKeyboardEnabled(true);
 
-    m_background = cocos2d::CCSprite::create("GJ_gradientBG.png");
+    auto bg = cocos2d::CCSprite::create("GJ_gradientBG.png");
     auto winSize = cocos2d::CCDirector::sharedDirector()->getWinSize();
-    m_background->setAnchorPoint(cocos2d::CCPoint(0.f, 0.f));
-    m_background->setColor(cocos2d::ccColor3B(0, 102, 255));
-    m_background->setScaleX(winSize.width / m_background->getContentWidth());
-    m_background->setScaleY(winSize.height / m_background->getContentHeight());
-    this->addChild(m_background);
+    bg->setAnchorPoint(cocos2d::CCPoint(0.f, 0.f));
+    bg->setColor(cocos2d::ccColor3B(0, 102, 255));
+    bg->setScaleX(winSize.width / bg->getContentWidth());
+    bg->setScaleY(winSize.height / bg->getContentHeight());
+    this->addChild(bg);
 
     // GJ_GameSheet03.png
     // GJ_sideArt_001.png
