@@ -16,28 +16,27 @@ bool QuartzMenuLayer::init() {
 		return false;
 	}
 
-	m_fields->m_quartzBtnBg = cocos2d::CCSprite::createWithSpriteFrameName("geode.loader/baseCircle_MediumAlt_Green.png");
-	m_fields->m_goldQuartz = cocos2d::CCSprite::create("quartzGold.png"_spr);
+	auto quartzBtnBg = cocos2d::CCSprite::createWithSpriteFrameName("geode.loader/baseCircle_MediumAlt_Green.png");
+	auto goldQuartz = cocos2d::CCSprite::create("quartzGold.png"_spr);
+	auto quartzBtn = CCMenuItemSpriteExtra::create(
+		quartzBtnBg, this,
+		menu_selector(QuartzMenuLayer::onQuartz)
+	);
 
-	if (m_fields->m_quartzBtnBg) {
-		if (m_fields->m_goldQuartz) {
-			m_fields->m_goldQuartz->setPosition(m_fields->m_quartzBtnBg->getScaledContentSize() / 2.f);
-			m_fields->m_quartzBtnBg->addChild(m_fields->m_goldQuartz);
+	if (quartzBtnBg) {
+		if (goldQuartz) {
+			goldQuartz->setPosition(quartzBtnBg->getScaledContentSize() / 2.f);
+			quartzBtnBg->addChild(goldQuartz);
 		}
 
-		m_fields->m_quartzBtn = CCMenuItemSpriteExtra::create(
-			m_fields->m_quartzBtnBg, this,
-			menu_selector(QuartzMenuLayer::onQuartz)
-		);
-
-		if (m_fields->m_quartzBtn) {
-			m_fields->m_quartzBtn->setID("quartz-button"_spr);
+		if (quartzBtn) {
+			quartzBtn->setID("quartz-button"_spr);
 		}
 	}
 
 	auto bottomMenu = getChildByID("bottom-menu");
-	if (bottomMenu && m_fields->m_quartzBtn) {
-		bottomMenu->addChild(m_fields->m_quartzBtn);
+	if (bottomMenu && quartzBtn) {
+		bottomMenu->addChild(quartzBtn);
 		bottomMenu->updateLayout();
 	}
 
