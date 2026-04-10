@@ -2,15 +2,19 @@
 #include <cocos2d.h>
 #include <Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h>
 #include <Geode/cocos/robtop/keyboard_dispatcher/CCKeyboardDelegate.h>
+#include <Geode/cocos/base_nodes/CCNode.h>
 
 namespace quartz {
 
 class ModsLayer : public cocos2d::CCLayer {
 public:
-	CREATE_FUNC(ModsLayer);
+	static ModsLayer* create();
 	static cocos2d::CCScene* scene();
-	virtual bool init();
+	bool init() override;
 	void keyDown(cocos2d::enumKeyCodes keyCode, double unk) override;
+
+private:
+	void goBackToLastScene();
 };
 
 } // namespace quartz
