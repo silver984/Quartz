@@ -7,6 +7,7 @@
 #include <Geode/cocos/CCDirector.h>
 #include <Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h>
 #include <Geode/cocos/sprite_nodes/CCSprite.h>
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <string>
 #include <cstddef>
 

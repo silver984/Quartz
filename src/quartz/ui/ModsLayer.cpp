@@ -4,6 +4,8 @@
 #include <Geode/loader/Log.hpp>
 #include <Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h>
 #include <Geode/cocos/sprite_nodes/CCSprite.h>
+#include <Geode/cocos/menu_nodes/CCMenu.h>
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <vector>
 #include <cstddef>
 
@@ -33,6 +35,7 @@ bool ModsLayer::init() {
         return false;
     }
 
+    this->setTouchEnabled(true);
     this->setKeyboardEnabled(true);
 
     auto winSize = cocos2d::CCDirector::sharedDirector()->getWinSize();
@@ -70,6 +73,30 @@ bool ModsLayer::init() {
         this->addChild(sideArt);
     }
 
+    auto menu = cocos2d::CCMenu::create();
+    if (menu) {
+        auto closeBtn = CCMenuItemSpriteExtra::create(
+            cocos2d::CCSprite::createWithSpriteFrameName("GJ_arrow_03_001.png"), this,
+            menu_selector(ModsLayer::goBackToLastScene)
+        );
+
+        if (closeBtn) {
+            menu->setContentSize(closeBtn->getContentSize());
+            menu->addChild(closeBtn);
+            closeBtn->setPosition(closeBtn->getParent()->getContentSize() / 2.f);
+
+            float padding = 5.f;
+            menu->setPosition(
+                cocos2d::CCPoint(
+                    padding,
+                    winSize.height - menu->getContentSize().height - padding
+                )
+            );
+
+            this->addChild(menu);
+        }
+    }
+
     return true;
 }
 
@@ -77,13 +104,13 @@ void ModsLayer::keyDown(cocos2d::enumKeyCodes keyCode, double unk) {
     switch (keyCode) {
         using enum cocos2d::enumKeyCodes;
     case KEY_Escape:
-        goBackToLastScene();
+        goBackToLastScene(nullptr);
         break;
     default: break;
     }
 }
 
-void ModsLayer::goBackToLastScene() {
+void ModsLayer::goBackToLastScene(cocos2d::CCObject*) {
     cocos2d::CCDirector::sharedDirector()->replaceScene(
         cocos2d::CCTransitionFade::create(
             0.5f,
