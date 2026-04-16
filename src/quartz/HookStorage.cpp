@@ -1,6 +1,7 @@
 #include <quartz/HookStorage.hpp>
 #include <Geode/loader/Log.hpp>
 #include <string>
+#include <fmt/format.h>
 
 #define DISCARD(call) static_cast<void>(call)
 
@@ -40,8 +41,22 @@ void HookStorage::storeGeodeHook(std::shared_ptr<geode::Hook> hook) {
 		return;
 	}
 
-	auto [it, inserted] = m_hooks.try_emplace(std::string(hook->getDisplayName()));
+	// handle overloaded hooks
+	size_t i = 1;
+	std::string resolvedHookName = std::string(hook->getDisplayName());
+	while (
+		m_hooks.contains(
+			i == 1
+			? resolvedHookName
+			: fmt::format("{}@{}", resolvedHookName, i)
+		)
+	) {
+		++i;
+	}
+
+	auto [it, _] = m_hooks.emplace(resolvedHookName, Hook());
 	it->second.geodeHook = hook;
+	geode::log::trace("Stored hook: \"{}\"", it->first);
 }
 
 void HookStorage::resetState() {

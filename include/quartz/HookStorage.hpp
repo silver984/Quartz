@@ -9,7 +9,6 @@
 
 namespace quartz {
 
-
 class HookStorage final {
 public:
 	HookStorage(const HookStorage&) = delete;
