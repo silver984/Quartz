@@ -6,18 +6,13 @@
 #include <Geode/cocos/menu_nodes/CCMenu.h>
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <Geode/cocos/extensions/GUI/CCControlExtension/CCScale9Sprite.h>
+#include <Geode/loader/Mod.hpp>
+#include <Geode/cocos/label_nodes/CCLabelBMFont.h>
+#include <Geode/ui/ScrollLayer.hpp>
 #include <fmt/format.h>
 #include <cstddef>
-#include <random>
 
 namespace qtz {
-
-int randomInt(int min, int max) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(min, max);
-    return dist(gen);
-}
 
 ModsLayer* ModsLayer::create() {
     ModsLayer* pRet = new ModsLayer();
@@ -49,12 +44,11 @@ bool ModsLayer::init() {
 
     auto winSize = cocos2d::CCDirector::sharedDirector()->getWinSize();
 
-    // m_bg = cocos2d::CCSprite::create(fmt::format("game_bg_{:02d}_001.png", randomInt(1, 59)).c_str());
     m_bg = cocos2d::CCSprite::create("game_bg_01_001.png");
     if (m_bg) {
         m_bg->setScale(1.125f);
         m_bg->setAnchorPoint(cocos2d::CCPoint(0.f, 0.5f));
-        auto texRect = m_bg->getTextureRect();
+        auto& texRect = m_bg->getTextureRect();
         cocos2d::CCRect newTexRect;
         newTexRect.setRect(0.f, 0.f, texRect.size.width * 2, texRect.size.height);
         m_bg->setTextureRect(newTexRect);
@@ -74,6 +68,23 @@ bool ModsLayer::init() {
         bgPlate->setContentSize(cocos2d::CCPoint(400.f, 250.f));
         bgPlate->setPosition(winSize / 2.f);
         this->addChild(bgPlate);
+
+        auto text = cocos2d::CCLabelBMFont::create("Addons", "bigFont.fnt");
+        if (text) {
+            bgPlate->addChild(text);
+            auto* textParent = text->getParent();
+            text->setScale(0.8f);
+            text->setPositionX(textParent->getContentWidth() / 2.f);
+            text->setPositionY(textParent->getContentHeight() - 3.f);
+            text->setAnchorPoint(cocos2d::CCPoint(0.5f, 1.f));
+        }
+
+        auto scrollLayer = geode::ScrollLayer::create(cocos2d::CCSize(200, 200));
+        if (scrollLayer) {
+            bgPlate->addChild(scrollLayer);
+            scrollLayer->getChildByID("content-layer")->addChild(cocos2d::CCSprite::create("fallbackModLogo.png"_spr));
+            scrollLayer->setPosition(scrollLayer->getContentSize() / 2.f);
+        }
     }
     
     auto menu = cocos2d::CCMenu::create();
