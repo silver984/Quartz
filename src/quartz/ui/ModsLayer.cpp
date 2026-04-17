@@ -1,4 +1,4 @@
-#include <quartz/ui/ModsLayer.hpp>
+#include <qtz/ui/ModsLayer.hpp>
 #include <Geode/cocos/CCDirector.h>
 #include <Geode/binding/MenuLayer.hpp>
 #include <Geode/loader/Log.hpp>
@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <random>
 
-namespace quartz {
+namespace qtz {
 
 int randomInt(int min, int max) {
     static std::random_device rd;

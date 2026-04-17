@@ -3,13 +3,13 @@
 #include <Geode/loader/Mod.hpp>
 #include <Geode/loader/Log.hpp>
 #include <Geode/modify/Modify.hpp>
-#include <quartz/LuaManager.hpp>
-#include <quartz/HookStorage.hpp>
+#include <qtz/LuaManager.hpp>
+#include <qtz/HookStorage.hpp>
 
 $on_mod(Loaded) {
-	quartz::HookStorage::get().setGeodeHooksPriority(geode::Priority::Last);
+	qtz::HookStorage::get().setGeodeHooksPriority(geode::Priority::Last);
 
-	auto& luaManager = quartz::LuaManager::get();
+	auto& luaManager = qtz::LuaManager::get();
 
 	if (!luaManager.init()) {
 		geode::log::error("Failed to initialize Lua");
@@ -20,5 +20,5 @@ $on_mod(Loaded) {
 }
 
 $on_game(Exiting) {
-	quartz::LuaManager::get().cleanup();
+	qtz::LuaManager::get().cleanup();
 }

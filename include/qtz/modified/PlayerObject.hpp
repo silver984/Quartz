@@ -2,7 +2,7 @@
 #include <Geode/modify/PlayerObject.hpp>
 #include <Geode/binding/GJBaseGameLayer.hpp>
 
-namespace quartz::modified {
+namespace qtz::modified {
 
 struct PlayerObject : geode::Modify<PlayerObject, ::PlayerObject> {
     static void onModify(geode::modifier::ModifyBase<geode::modifier::ModifyDerive<PlayerObject, ::PlayerObject>>& self);
@@ -11,4 +11,4 @@ struct PlayerObject : geode::Modify<PlayerObject, ::PlayerObject> {
     bool init(int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer);
 };
 
-} // namespace quartz::modified
+} // namespace qtz::modified

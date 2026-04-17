@@ -1,9 +1,9 @@
-#include <quartz/modified/PlayerObject.hpp>
+#include <qtz/modified/PlayerObject.hpp>
 
-namespace quartz::modified {
+namespace qtz::modified {
 
 void PlayerObject::update(float dt) {
-	quartz::runHookChain<void>(
+	qtz::runHookChain<void>(
 		"PlayerObject::update",
 		static_cast<::PlayerObject*>(this),
 		[](::PlayerObject* self, auto&&... args) -> decltype(auto) {
@@ -13,4 +13,4 @@ void PlayerObject::update(float dt) {
 	);
 }
 
-} // namespace quartz::modified
+} // namespace qtz::modified

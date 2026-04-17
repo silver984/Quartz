@@ -1,7 +1,7 @@
 #pragma once
 #include <sol/sol.hpp>
-#include <quartz/LuaManager.hpp>
-#include <quartz/BindingsManager.hpp>
-#include <quartz/HookStorage.hpp>
-#include <quartz/Templates.hpp>
+#include <qtz/LuaManager.hpp>
+#include <qtz/BindingsManager.hpp>
+#include <qtz/HookStorage.hpp>
+#include <qtz/Templates.hpp>
 #include <Geode/DefaultInclude.hpp>

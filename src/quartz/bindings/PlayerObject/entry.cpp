@@ -1,12 +1,12 @@
 #include <pch.hpp>
-#include <quartz/modified/PlayerObject.hpp>
+#include <qtz/modified/PlayerObject.hpp>
 
 $execute {
-	auto& bindingsManager = quartz::BindingsManager::get();
+	auto& bindingsManager = qtz::BindingsManager::get();
     bindingsManager.queue(
-        quartz::BindingLevel::Entry,
+        qtz::BindingLevel::Entry,
         []() {
-            auto state = quartz::LuaManager::get().luaState();
+            auto state = qtz::LuaManager::get().luaState();
 
             state.new_usertype<PlayerObject>(
                 "PlayerObject",

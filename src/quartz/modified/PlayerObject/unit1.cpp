@@ -1,7 +1,7 @@
-#include <quartz/modified/PlayerObject.hpp>
+#include <qtz/modified/PlayerObject.hpp>
 #include <pch.hpp>
 
-namespace quartz::modified {
+namespace qtz::modified {
 
 void PlayerObject::onModify(geode::modifier::ModifyBase<geode::modifier::ModifyDerive<PlayerObject, ::PlayerObject>>& self) {
 	for (const auto& [_, hook] : self.m_hooks) {
@@ -10,11 +10,11 @@ void PlayerObject::onModify(geode::modifier::ModifyBase<geode::modifier::ModifyD
 }
 
 ::PlayerObject* PlayerObject::create(int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer) {
-	return quartz::runStaticHookChain<::PlayerObject*>(
+	return qtz::runStaticHookChain<::PlayerObject*>(
 		"PlayerObject.create",
 		&::PlayerObject::create,
 		player, ship, gameLayer, layer, playLayer
 	);
 }
 
-} // namespace quartz::modified
+} // namespace qtz::modified

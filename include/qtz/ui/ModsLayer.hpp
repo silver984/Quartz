@@ -4,7 +4,7 @@
 #include <Geode/cocos/cocoa/CCObject.h>
 #include <Geode/cocos/sprite_nodes/CCSprite.h>
 
-namespace quartz {
+namespace qtz {
 
 class ModsLayer final : public cocos2d::CCLayer {
 public:
@@ -20,4 +20,4 @@ private:
 	cocos2d::CCSprite* m_bg = nullptr;
 };
 
-} // namespace quartz
+} // namespace qtz

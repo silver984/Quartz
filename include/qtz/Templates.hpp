@@ -1,7 +1,7 @@
 #pragma once
 #include <Geode/loader/Log.hpp>
-#include <quartz/LuaManager.hpp>
-#include <quartz/HookStorage.hpp>
+#include <qtz/LuaManager.hpp>
+#include <qtz/HookStorage.hpp>
 #include <string_view>
 #include <exception>
 #include <utility>
@@ -9,7 +9,7 @@
 #include <functional>
 #include <cstddef>
 
-namespace quartz {
+namespace qtz {
 
 template <typename Ret, typename Self, typename Original, typename... Args>
 Ret runHookChain(std::string_view hookName, Self* self, Original original, Args... args) {
@@ -109,4 +109,4 @@ Ret runStaticHookChain(std::string_view hookName, Original original, Args... arg
     return chain(0, args...);
 }
 
-} // namespace quartz
+} // namespace qtz

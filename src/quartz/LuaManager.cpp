@@ -1,13 +1,13 @@
-#include <quartz/LuaManager.hpp>
-#include <quartz/BindingsManager.hpp>
-#include <quartz/HookStorage.hpp>
-#include <quartz/core/Timer.hpp>
+#include <qtz/LuaManager.hpp>
+#include <qtz/BindingsManager.hpp>
+#include <qtz/HookStorage.hpp>
+#include <qtz/core/Timer.hpp>
 #include <Geode/loader/Mod.hpp>
 #include <Geode/loader/Log.hpp>
 #include <exception>
 #include <utility>
 
-namespace quartz {
+namespace qtz {
 
 LuaManager& LuaManager::get() {
 	static LuaManager instance;
@@ -173,4 +173,4 @@ void LuaManager::runScripts(std::vector<std::filesystem::path>& scripts) {
 	geode::log::debug("Took {}s", endTimer(timer));
 }
 
-} // namespace quartz
+} // namespace qtz

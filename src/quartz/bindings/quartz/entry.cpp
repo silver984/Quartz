@@ -2,15 +2,15 @@
 #include <string>
 
 $execute {
-    auto& bindingsManager = quartz::BindingsManager::get();
+    auto& bindingsManager = qtz::BindingsManager::get();
     bindingsManager.queue(
-        quartz::BindingLevel::Entry,
+        qtz::BindingLevel::Entry,
         []() {
-            auto state = quartz::LuaManager::get().luaState();
+            auto state = qtz::LuaManager::get().luaState();
             sol::table quartzTable = state["quartz"].get_or_create<sol::table>();
             quartzTable["hook"] =
                 [](std::string name, sol::function callback) {
-                quartz::HookStorage::get().storeLuaCallback(name, std::move(callback));
+                qtz::HookStorage::get().storeLuaCallback(name, std::move(callback));
                 };
         }
     );

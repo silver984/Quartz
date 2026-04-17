@@ -1,6 +1,6 @@
-#include <quartz/BindingsManager.hpp>
+#include <qtz/BindingsManager.hpp>
 
-namespace quartz {
+namespace qtz {
 
 BindingsManager& BindingsManager::get() {
 	static BindingsManager instance;
@@ -28,4 +28,4 @@ void BindingsManager::runQueue() {
 	allUnits.clear();
 }
 
-} // namespace quartz
+} // namespace qtz

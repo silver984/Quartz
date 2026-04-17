@@ -3,7 +3,7 @@
 #include <vector>
 #include <filesystem>
 
-namespace quartz {
+namespace qtz {
 
 class LuaManager final {
 public:
@@ -37,4 +37,4 @@ private:
 	std::vector<sol::environment> m_environments;
 };
 
-} // namespace quartz
+} // namespace qtz

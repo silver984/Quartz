@@ -4,7 +4,7 @@
 #include <string_view>
 #include <cstddef>
 
-namespace quartz {
+namespace qtz {
 
 struct TransparentStringHash final {
 	using is_transparent = void;
@@ -25,4 +25,4 @@ struct TransparentStringHash final {
 template <typename T>
 using StringMap = std::unordered_map<std::string, T, TransparentStringHash, std::equal_to<>>;
 
-} // namespace quartz
+} // namespace qtz

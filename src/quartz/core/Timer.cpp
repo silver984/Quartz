@@ -1,6 +1,6 @@
-#include <quartz/core/Timer.hpp>
+#include <qtz/core/Timer.hpp>
 
-namespace quartz {
+namespace qtz {
 
 std::chrono::steady_clock::time_point startTimer() {
 	return std::chrono::high_resolution_clock::now();
@@ -12,4 +12,4 @@ double endTimer(const std::chrono::steady_clock::time_point& start) {
 	return elapsed.count();
 }
 
-} // namespace quartz
+} // namespace qtz

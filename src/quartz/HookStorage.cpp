@@ -1,11 +1,11 @@
-#include <quartz/HookStorage.hpp>
+#include <qtz/HookStorage.hpp>
 #include <Geode/loader/Log.hpp>
 #include <string>
 #include <fmt/format.h>
 
 #define DISCARD(call) static_cast<void>(call)
 
-namespace quartz {
+namespace qtz {
 
 HookStorage& HookStorage::get() {
 	static HookStorage instance;
@@ -90,4 +90,4 @@ void HookStorage::setGeodeHooksPriority(int32_t priority) {
 	}
 }
 
-} // namespace quartz
+} // namespace qtz

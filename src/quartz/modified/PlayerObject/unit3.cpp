@@ -1,9 +1,9 @@
-#include <quartz/modified/PlayerObject.hpp>
+#include <qtz/modified/PlayerObject.hpp>
 
-namespace quartz::modified {
+namespace qtz::modified {
 
 bool PlayerObject::init(int player, int ship, GJBaseGameLayer* gameLayer, cocos2d::CCLayer* layer, bool playLayer) {
-	return quartz::runHookChain<bool>(
+	return qtz::runHookChain<bool>(
 		"PlayerObject::init",
 		static_cast<::PlayerObject*>(this),
 		[](::PlayerObject* self, auto&&... args) -> decltype(auto) {
@@ -13,4 +13,4 @@ bool PlayerObject::init(int player, int ship, GJBaseGameLayer* gameLayer, cocos2
 	);
 }
 
-} // namespace quartz::modified
+} // namespace qtz::modified

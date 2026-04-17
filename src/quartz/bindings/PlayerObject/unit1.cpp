@@ -1,12 +1,12 @@
 #include <pch.hpp>
-#include <quartz/modified/PlayerObject.hpp>
+#include <qtz/modified/PlayerObject.hpp>
 
 $execute {
-	auto& bindingsManager = quartz::BindingsManager::get();
+	auto& bindingsManager = qtz::BindingsManager::get();
 	bindingsManager.queue(
-	quartz::BindingLevel::Unit,
+	qtz::BindingLevel::Unit,
 		[]() {
-			sol::usertype<PlayerObject> usertype = quartz::LuaManager::get().luaState()["PlayerObject"];
+			sol::usertype<PlayerObject> usertype = qtz::LuaManager::get().luaState()["PlayerObject"];
 
 			usertype["yVlocity"] = sol::property(
 				[](PlayerObject* self) {

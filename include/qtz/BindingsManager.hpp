@@ -1,10 +1,10 @@
 #pragma once
-#include <quartz/core/EnumArray.hpp>
+#include <qtz/core/EnumArray.hpp>
 #include <functional>
 #include <vector>
 #include <memory>
 
-namespace quartz {
+namespace qtz {
 
 enum class BindingLevel : int {
 	Entry,
@@ -30,4 +30,4 @@ private:
 	EnumArray<std::vector<std::function<void()>>, BindingLevel, BindingLevel::Count> m_allQueued;
 };
 
-} // namespace quartz
+} // namespace qtz

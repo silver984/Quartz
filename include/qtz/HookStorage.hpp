@@ -1,13 +1,13 @@
 #pragma once
 #include <Geode/loader/Hook.hpp>
-#include <quartz/core/StringMap.hpp>
+#include <qtz/core/StringMap.hpp>
 #include <sol/sol.hpp>
 #include <vector>
 #include <string_view>
 #include <memory>
 #include <cstdint>
 
-namespace quartz {
+namespace qtz {
 
 class HookStorage final {
 public:
@@ -36,4 +36,4 @@ private:
 	StringMap<Hook> m_hooks;
 };
 
-} // namespace quartz
+} // namespace qtz

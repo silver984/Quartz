@@ -1,6 +1,6 @@
-#include <quartz/ui/QuartzMenuLayer.hpp>
-#include <quartz/LuaManager.hpp>
-#include <quartz/ui/ModsLayer.hpp>
+#include <qtz/ui/QuartzMenuLayer.hpp>
+#include <qtz/LuaManager.hpp>
+#include <qtz/ui/ModsLayer.hpp>
 #include <Geode/cocos/cocoa/CCGeometry.h>
 #include <Geode/ui/Notification.hpp>
 #include <Geode/loader/Log.hpp>
@@ -11,7 +11,7 @@
 #include <string>
 #include <cstddef>
 
-namespace quartz::ui {
+namespace qtz::ui {
 
 bool QuartzMenuLayer::init() {
 	if (!MenuLayer::init()) {
@@ -47,7 +47,7 @@ bool QuartzMenuLayer::init() {
 
 void QuartzMenuLayer::onQuartz(cocos2d::CCObject*) {
 	/*
-	auto& luaManager = quartz::LuaManager::get();
+	auto& luaManager = qtz::LuaManager::get();
 	luaManager.loadScripts();
 
 	std::string statusLog;
@@ -78,4 +78,4 @@ void QuartzMenuLayer::onQuartz(cocos2d::CCObject*) {
 	);
 }
 
-} // namespace quartz::ui
+} // namespace qtz::ui
