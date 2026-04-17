@@ -75,10 +75,10 @@ bool ModsLayer::init() {
 
     auto scrollLayer = geode::ScrollLayer::create(cocos2d::CCSize(300, 200));
     bgPlate->addChild(scrollLayer);
+    scrollLayer->addChild(cocos2d::CCLayerColor::create(cocos2d::ccColor4B(0, 0, 0, 128)), -1);
     scrollLayer->getChildByID("content-layer")->addChild(cocos2d::CCSprite::create("fallbackModLogo.png"_spr));
     scrollLayer->setPositionX((scrollLayer->getParent()->getContentWidth() / 2.f) - (scrollLayer->getContentWidth() / 2.f));
-    scrollLayer->setPositionY(15.f);
-    // scrollLayer->setPosition(bgPlate->getContentSize() / 2.f);
+    scrollLayer->setPositionY(17.f);
     
     auto menu = cocos2d::CCMenu::create();
     auto closeBtn = CCMenuItemSpriteExtra::create(

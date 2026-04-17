@@ -25,22 +25,13 @@ bool QuartzMenuLayer::init() {
 		menu_selector(QuartzMenuLayer::onQuartz)
 	);
 
-	if (quartzBtnBg) {
-		if (goldQuartz) {
-			goldQuartz->setPosition(quartzBtnBg->getScaledContentSize() / 2.f);
-			quartzBtnBg->addChild(goldQuartz);
-		}
-
-		if (quartzBtn) {
-			quartzBtn->setID("quartz-button"_spr);
-		}
-	}
+	goldQuartz->setPosition(quartzBtnBg->getScaledContentSize() / 2.f);
+	quartzBtnBg->addChild(goldQuartz);
+	quartzBtn->setID("quartz-button"_spr);
 
 	auto bottomMenu = getChildByID("bottom-menu");
-	if (bottomMenu && quartzBtn) {
-		bottomMenu->addChild(quartzBtn);
-		bottomMenu->updateLayout();
-	}
+	bottomMenu->addChild(quartzBtn);
+	bottomMenu->updateLayout();
 
 	return true;
 }
